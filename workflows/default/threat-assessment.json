@@ -1,0 +1,9 @@
+{
+  "id": "threat-assessment",
+  "name": "הערכת איום",
+  "description": "ניתוח מקיף של איום צבאי או טרוריסטי — כוחות, כוונות, יכולות",
+  "agents": ["agent-devils-advocate", "agent-bda", "agent-economics"],
+  "autoActivateKeywords": ["איום", "מתקפה", "כוח", "נשק", "טיל", "כוונה", "threat", "attack"],
+  "synthesisFocus": "התמקד בטריאדת הכוונה–יכולת–הזדמנות. אמת כל רכיב בנפרד מול עדויות עדכניות. הגדר את אופק הזמן הסביר לממשות האיום",
+  "isDefault": true
+}

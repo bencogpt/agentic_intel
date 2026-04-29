@@ -1,0 +1,89 @@
+{
+  "app": {
+    "name": "AVAR",
+    "tagline": "מערכת אימות הערכות מודיעיניות"
+  },
+  "nav": {
+    "dashboard": "לוח בקרה",
+    "newAssessment": "הערכה חדשה",
+    "skills": "מיומנויות",
+    "agents": "סוכנים"
+  },
+  "dashboard": {
+    "title": "הערכות אחרונות",
+    "newButton": "הערכה חדשה",
+    "noAssessments": "אין הערכות עדיין",
+    "status": {
+      "pending": "ממתין",
+      "analyzing": "מנתח",
+      "dispatching": "שולח לסוכנים",
+      "researching": "חוקר",
+      "synthesizing": "מסנתז",
+      "complete": "הושלם",
+      "error": "שגיאה"
+    }
+  },
+  "ingest": {
+    "title": "הכנסת הערכה חדשה",
+    "uploadLabel": "גרור קובץ לכאן או לחץ להעלאה",
+    "supportedFormats": "פורמטים נתמכים: .md, .txt, .docx, .pdf",
+    "pasteLabel": "או הדבק טקסט ישירות",
+    "pastePlaceholder": "הדבק את טקסט ההערכה כאן...",
+    "analyzeButton": "נתח הערכה",
+    "selectAgents": "בחר סוכנים ידנית (אופציונלי)"
+  },
+  "processing": {
+    "title": "מעבד הערכה",
+    "agentPanel": "פאנל סוכנים",
+    "skillsPanel": "מיומנויות פעילות",
+    "waiting": "ממתין",
+    "active": "פעיל",
+    "complete": "הושלם"
+  },
+  "report": {
+    "title": "דו\"ח AVAR",
+    "executiveSummary": "תמצית מנהלים",
+    "keyClaims": "טענות מרכזיות",
+    "contradictingEvidence": "עדויות סותרות",
+    "alternatives": "חלופות מדורגות",
+    "recommendations": "המלצות",
+    "transparencyLog": "לוג שקיפות",
+    "export": "ייצוא",
+    "severity": "חומרה",
+    "likelihood": "הסתברות",
+    "acceptAlternative": "קבל",
+    "rejectAlternative": "דחה"
+  },
+  "skills": {
+    "title": "ניהול מיומנויות",
+    "newSkill": "צור מיומנות חדשה",
+    "defaultSkills": "מיומנויות ברירת מחדל",
+    "customSkills": "מיומנויות מותאמות",
+    "edit": "ערוך"
+  },
+  "skillCreator": {
+    "title": "יצירת מיומנות חדשה",
+    "step1": "שם ותיאור",
+    "step2": "שאלות ליבה",
+    "step3": "הנחיות ניתוח",
+    "step4": "מקורות מועדפים",
+    "step5": "תצוגה מקדימה ושמירה",
+    "next": "הבא",
+    "back": "חזור",
+    "save": "שמור מיומנות",
+    "preview": "תצוגה מקדימה"
+  },
+  "agents": {
+    "title": "ניהול סוכנים",
+    "enable": "הפעל",
+    "disable": "השבת",
+    "edit": "ערוך",
+    "skills": "מיומנויות משויכות",
+    "priority": "עדיפות"
+  },
+  "errors": {
+    "generic": "אירעה שגיאה. נסה שוב.",
+    "uploadFailed": "העלאת הקובץ נכשלה.",
+    "unsupportedFormat": "פורמט קובץ לא נתמך."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "avar",
+  "version": "0.1.0",
+  "description": "Agentic Validation and Assessment Review — Intelligence Assessment Validation System",
+  "private": true,
+  "main": "index.js",
+  "engines": { "node": "20" },
+  "workspaces": [
+    "src/frontend",
+    "src/backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=src/backend",
+    "dev:frontend": "npm run dev --workspace=src/frontend",
+    "build": "npm run build --workspaces",
+    "build:frontend": "npm run build --workspace=src/frontend",
+    "test": "npm run test --workspaces",
+    "deploy": "npm run build:frontend && firebase deploy --force",
+    "deploy:functions": "firebase deploy --only functions --force",
+    "deploy:hosting": "npm run build:frontend && firebase deploy --only hosting"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.3.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

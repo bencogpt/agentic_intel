@@ -1,0 +1,2159 @@
+{
+  "version": "2.9",
+  "children": [
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": -421,
+      "y": -13,
+      "name": "Frame",
+      "clip": true,
+      "width": 350,
+      "height": 126,
+      "fill": "#FFFFFF",
+      "layout": "none"
+    },
+    {
+      "type": "frame",
+      "id": "rhaSY",
+      "x": -840,
+      "y": 134,
+      "name": "AVAR Architecture",
+      "width": 1280,
+      "height": 820,
+      "fill": "#F1F5F9",
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "7WNOa",
+          "x": 32,
+          "y": 16,
+          "fill": "#0F172A",
+          "content": "AVAR — System Architecture",
+          "fontFamily": "Inter",
+          "fontSize": 22,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "3xCTr",
+          "x": 32,
+          "y": 46,
+          "fill": "#94A3B8",
+          "content": "Intelligence Assessment Validation · React SPA + Node.js/Express + Anthropic Claude API + Tavily Search",
+          "fontFamily": "Inter",
+          "fontSize": 11,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "fdVEq",
+          "x": 32,
+          "y": 68,
+          "name": "Frontend",
+          "clip": true,
+          "width": 225,
+          "height": 732,
+          "fill": "#EFF6FF",
+          "cornerRadius": 12,
+          "stroke": {
+            "align": "inside",
+            "thickness": 2,
+            "fill": "#BFDBFE"
+          },
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "CDLxu",
+              "name": "feHdr",
+              "width": "fill_container",
+              "height": 44,
+              "fill": "#BFDBFE",
+              "gap": 8,
+              "padding": [
+                0,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "7EkLX",
+                  "fill": "#1E40AF",
+                  "content": "FRONTEND",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "c6fYA",
+                  "fill": "#3B82F6",
+                  "content": "Browser · React SPA (Vite)",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "qrvnW",
+              "name": "feC",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 7,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rH09w",
+                  "fill": "#3B82F6",
+                  "content": "PAGES",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "WN6CS",
+                  "fill": "#1D4ED8",
+                  "content": "› Dashboard (history + telemetry)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "rnl6A",
+                  "fill": "#1D4ED8",
+                  "content": "› New Assessment (text / file upload)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "s3SEo",
+                  "fill": "#1D4ED8",
+                  "content": "› Processing (live SSE event log)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "qiWAv",
+                  "fill": "#1D4ED8",
+                  "content": "› Report (8 tabs + follow-up chat)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "rgZke",
+                  "fill": "#1D4ED8",
+                  "content": "› Skills / Agents / Workflows managers",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "fC3Uz",
+                  "fill": "#BFDBFE",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "p7cod",
+                  "fill": "#3B82F6",
+                  "content": "WIZARD COMPONENTS",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "URWfV",
+                  "fill": "#1D4ED8",
+                  "content": "› SkillCreator (6 steps + preview)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "5rVKL",
+                  "fill": "#1D4ED8",
+                  "content": "› AgentCreator (5 steps + preview)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "Pz6aD",
+                  "fill": "#1D4ED8",
+                  "content": "› WorkflowCreator (4 steps + preview)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "Se0xl",
+                  "fill": "#BFDBFE",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "LqxiS",
+                  "fill": "#3B82F6",
+                  "content": "SERVICES",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "t0xMo",
+                  "fill": "#1D4ED8",
+                  "content": "› client.js — typed API layer",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "dtCzS",
+                  "fill": "#1D4ED8",
+                  "content": "› EventSource — SSE analysis stream",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "wtLvR",
+                  "fill": "#1D4ED8",
+                  "content": "› fetch() stream — SSE chat",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "sjDDt",
+                  "fill": "#BFDBFE",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "o9eyU",
+                  "fill": "#3B82F6",
+                  "content": "DESIGN",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "6yd8w",
+                  "fill": "#1D4ED8",
+                  "content": "› Tailwind v3 + RTL (Hebrew / dir=rtl)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "A5474",
+                  "fill": "#1D4ED8",
+                  "content": "› React Router v6",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "Uarl2",
+                  "fill": "#1D4ED8",
+                  "content": "› Citation renderer (T1 / T2 / T3 badges)",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "C18tW",
+                  "fill": "#1D4ED8",
+                  "content": "› Telemetry + suggestions panels",
+                  "fontFamily": "Inter",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "nFXZD",
+          "x": 297,
+          "y": 68,
+          "name": "Backend",
+          "clip": true,
+          "width": 458,
+          "height": 732,
+          "fill": "#F0FDF4",
+          "cornerRadius": 12,
+          "stroke": {
+            "align": "inside",
+            "thickness": 2,
+            "fill": "#86EFAC"
+          },
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "xcia9",
+              "name": "beHdr",
+              "width": "fill_container",
+              "height": 44,
+              "fill": "#BBF7D0",
+              "gap": 8,
+              "padding": [
+                0,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LrLjB",
+                  "fill": "#14532D",
+                  "content": "BACKEND",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "GFJ5V",
+                  "fill": "#16A34A",
+                  "content": "Node.js · Express · Port 3001",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "le5r2",
+              "name": "beC",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Apf8H",
+                  "name": "apiBox",
+                  "width": "fill_container",
+                  "fill": "#DCFCE7",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#6EE7B7"
+                  },
+                  "layout": "vertical",
+                  "gap": 5,
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "TFIQ3",
+                      "fill": "#065F46",
+                      "content": "API ROUTES",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "rDrP4",
+                      "fill": "#047857",
+                      "content": "POST /api/ingest/text  ·  POST /api/ingest/file",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "cOY84",
+                      "fill": "#047857",
+                      "content": "POST /api/analyze              → starts bg analysis",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SZucR",
+                      "fill": "#047857",
+                      "content": "GET  /api/analyze/:id/stream  → SSE event stream",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "aVO1S",
+                      "fill": "#047857",
+                      "content": "GET  /api/report/:id  ·  GET /api/sessions",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "c2IdI",
+                      "fill": "#047857",
+                      "content": "POST /api/chat/:id             → SSE follow-up chat",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "1v2Bz",
+                      "fill": "#047857",
+                      "content": "CRUD /api/agents  ·  /api/skills  ·  /api/workflows",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "1W4eK",
+                  "name": "engBox",
+                  "width": "fill_container",
+                  "fill": "#DCFCE7",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#6EE7B7"
+                  },
+                  "layout": "vertical",
+                  "gap": 5,
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "2EVBX",
+                      "fill": "#065F46",
+                      "content": "AGENTIC ENGINE  (analyze.js)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "fJxnQ",
+                      "fill": "#14532D",
+                      "content": "runWithSearch(sessionId, system, prompt, label)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "7VaCH",
+                      "fill": "#047857",
+                      "content": "  1. client.messages.create() → Claude API call",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lqhsg",
+                      "fill": "#047857",
+                      "content": "  2. stop_reason === tool_use?",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "5kr28",
+                      "fill": "#047857",
+                      "content": "     → execute web_search via Tavily",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "YpFyy",
+                      "fill": "#047857",
+                      "content": "     → push tool_result → loop",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ntWcu",
+                      "fill": "#047857",
+                      "content": "  3. stop_reason === end_turn → return text",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "U3kqm",
+                      "fill": "#047857",
+                      "content": "  4. trackTelemetry(): llmCalls · tokens · searches",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "VDOH2",
+                      "fill": "#86EFAC",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "text",
+                      "id": "0WIYv",
+                      "fill": "#047857",
+                      "content": "analyzeDocument → keyClaims · entities · suggestedAgents",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "S7KqA",
+                      "fill": "#047857",
+                      "content": "dispatchAgents  → ≤5 concurrent (Promise.all)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "fwHnD",
+                      "fill": "#047857",
+                      "content": "runAgent        → agent.md + skills ctx + web search",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sSNw2",
+                      "fill": "#047857",
+                      "content": "synthesize      → all outputs → final report.md",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NtIEv",
+                      "fill": "#047857",
+                      "content": "detectSuggestions → missing agents / missing skills",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ac2Hn",
+                  "name": "sessBox",
+                  "width": "fill_container",
+                  "fill": "#DCFCE7",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#6EE7B7"
+                  },
+                  "layout": "vertical",
+                  "gap": 5,
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FKaxx",
+                      "fill": "#065F46",
+                      "content": "SESSION STORE  (store.js)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SAUyw",
+                      "fill": "#047857",
+                      "content": "In-memory Map(sessionId → session object)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "y50j9",
+                      "fill": "#047857",
+                      "content": "SSE registry   Map(sessionId → Express res)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "i1AX8",
+                      "fill": "#047857",
+                      "content": "Fields: status · currentStep · activeAgents",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "4WNy7",
+                      "fill": "#047857",
+                      "content": "        analysis · agentOutputs · report",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ge0Ys",
+                      "fill": "#047857",
+                      "content": "        telemetry · suggestions · events[]",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "f9lqf",
+                      "fill": "#047857",
+                      "content": "        documentText · wordCount · language",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yPQ2Z",
+                      "fill": "#047857",
+                      "content": "saveSessions() → sessions.json  (on complete/error)",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Jgtmy",
+          "x": 803,
+          "y": 68,
+          "name": "External APIs",
+          "clip": true,
+          "width": 445,
+          "height": 300,
+          "fill": "#FFF7ED",
+          "cornerRadius": 12,
+          "stroke": {
+            "align": "inside",
+            "thickness": 2,
+            "fill": "#FED7AA"
+          },
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "XN6cp",
+              "name": "extHdr",
+              "width": "fill_container",
+              "height": 44,
+              "fill": "#FFEDD5",
+              "padding": [
+                0,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "7ykyU",
+                  "fill": "#C2410C",
+                  "content": "EXTERNAL APIs",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hskks",
+              "name": "extC",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "3iwdg",
+                  "name": "claudeBox",
+                  "width": "fill_container",
+                  "fill": "#FFEDD5",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#FCA5A5"
+                  },
+                  "layout": "vertical",
+                  "gap": 5,
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "wdCu9",
+                      "fill": "#9A3412",
+                      "content": "Anthropic Claude API",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "QAHrl",
+                      "fill": "#C2410C",
+                      "content": "Model: claude-sonnet-4-6",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "rectangle",
+                      "id": "E41wX",
+                      "fill": "#FED7AA",
+                      "width": "fill_container",
+                      "height": 1
+                    },
+                    {
+                      "type": "text",
+                      "id": "9mZuW",
+                      "fill": "#92400E",
+                      "content": "ANALYZE   → JSON: keyClaims, entities, assumptions",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jeHIW",
+                      "fill": "#92400E",
+                      "content": "RESEARCH  → agent.md + skills + tool_use loop",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "9XWrQ",
+                      "fill": "#92400E",
+                      "content": "SYNTHESIZE → all agent outputs → report.md",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "8FJoA",
+                      "fill": "#92400E",
+                      "content": "CHAT       → follow-up Q&A with SSE streaming",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "j2gzo",
+                  "name": "tavilyBox",
+                  "width": "fill_container",
+                  "fill": "#FFEDD5",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#FCA5A5"
+                  },
+                  "layout": "vertical",
+                  "gap": 5,
+                  "padding": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "4AJFI",
+                      "fill": "#9A3412",
+                      "content": "Tavily Search API  (v2)",
+                      "fontFamily": "Inter",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "JMW5v",
+                      "fill": "#C2410C",
+                      "content": "Auth: Bearer token · Called by backend on tool_use",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Gz7AU",
+                      "fill": "#92400E",
+                      "content": "Returns: title · url · date · snippet",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NxxFM",
+                      "fill": "#92400E",
+                      "content": "Backend classifies: T1 news · T2 general · T3 social",
+                      "fontFamily": "Inter",
+                      "fontSize": 9,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rVMhS",
+          "x": 803,
+          "y": 378,
+          "name": "File System",
+          "clip": true,
+          "width": 445,
+          "height": 422,
+          "fill": "#F8FAFC",
+          "cornerRadius": 12,
+          "stroke": {
+            "align": "inside",
+            "thickness": 2,
+            "fill": "#CBD5E1"
+          },
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "oiqNw",
+              "name": "fsHdr",
+              "width": "fill_container",
+              "height": 44,
+              "fill": "#E2E8F0",
+              "gap": 8,
+              "padding": [
+                0,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "hnOk4",
+                  "fill": "#1E293B",
+                  "content": "FILE SYSTEM",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "Suj24",
+                  "fill": "#64748B",
+                  "content": "disk · read/write",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "DKcZQ",
+              "name": "fsC",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "0gsIC",
+                  "fill": "#334155",
+                  "content": "AGENTS  (agents/default/  ·  agents/custom/)",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "HXuVt",
+                  "fill": "#64748B",
+                  "content": "  .md files with YAML frontmatter: id · name · role · skills[]",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "uhYye",
+                  "fill": "#64748B",
+                  "content": "  body: agent instructions injected as system context",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "hoV6m",
+                  "fill": "#CBD5E1",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "jJh9v",
+                  "fill": "#334155",
+                  "content": "SKILLS  (skills/default/  ·  skills/custom/)",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "SqMVj",
+                  "fill": "#64748B",
+                  "content": "  .md files: methodology / tradecraft knowledge",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "TV44B",
+                  "fill": "#64748B",
+                  "content": "  loaded per-agent, concatenated into system prompt",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "4nHLB",
+                  "fill": "#CBD5E1",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "q6gsa",
+                  "fill": "#334155",
+                  "content": "WORKFLOWS  (workflows/default/  ·  workflows/custom/)",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "QElOJ",
+                  "fill": "#64748B",
+                  "content": "  .json: name · agents[] · autoActivateKeywords · synthesisFocus",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "2zX03",
+                  "fill": "#CBD5E1",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "K2ium",
+                  "fill": "#334155",
+                  "content": "PROMPTS  (prompts/)",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "j2JAh",
+                  "fill": "#64748B",
+                  "content": "  system-prompt.md · analysis-prompt.md · synthesis-prompt.md",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "4gBL1",
+                  "fill": "#CBD5E1",
+                  "width": "fill_container",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "IHYNI",
+                  "fill": "#334155",
+                  "content": "HISTORY  (reports/sessions.json)",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "r1HTL",
+                  "fill": "#64748B",
+                  "content": "  persisted on complete/error — includes telemetry + suggestions",
+                  "fontFamily": "Inter",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "tUdWT",
+          "x": 252,
+          "y": 418,
+          "fill": "#475569",
+          "textGrowth": "fixed-width",
+          "width": 45,
+          "content": "HTTP + SSE",
+          "textAlign": "center",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "CdLzW",
+          "x": 257,
+          "y": 432,
+          "fill": "#64748B",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "type": "path",
+          "id": "7UCYE",
+          "x": 257,
+          "y": 426,
+          "geometry": "M8 0l-8 6 8 6z",
+          "fill": "#64748B",
+          "width": 8,
+          "height": 12
+        },
+        {
+          "type": "path",
+          "id": "wvEbW",
+          "x": 289,
+          "y": 426,
+          "geometry": "M0 0l8 6-8 6z",
+          "fill": "#64748B",
+          "width": 8,
+          "height": 12
+        },
+        {
+          "type": "text",
+          "id": "jWWLq",
+          "x": 752,
+          "y": 200,
+          "fill": "#C2410C",
+          "textGrowth": "fixed-width",
+          "width": 52,
+          "content": "API calls",
+          "textAlign": "center",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "hiNlN",
+          "x": 755,
+          "y": 214,
+          "fill": "#C2410C",
+          "width": 48,
+          "height": 2
+        },
+        {
+          "type": "path",
+          "id": "7nl2d",
+          "x": 795,
+          "y": 208,
+          "geometry": "M0 0l8 6-8 6z",
+          "fill": "#C2410C",
+          "width": 8,
+          "height": 12
+        },
+        {
+          "type": "text",
+          "id": "Zu7Xi",
+          "x": 750,
+          "y": 204,
+          "fill": "#EA580C",
+          "textGrowth": "fixed-width",
+          "width": 60,
+          "content": "tool_use: web_search",
+          "textAlign": "center",
+          "fontFamily": "Inter",
+          "fontSize": 7,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "OnHlh",
+          "x": 748,
+          "y": 566,
+          "fill": "#475569",
+          "textGrowth": "fixed-width",
+          "width": 58,
+          "content": "read / write",
+          "textAlign": "center",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "ViYve",
+          "x": 755,
+          "y": 578,
+          "fill": "#64748B",
+          "width": 48,
+          "height": 2
+        },
+        {
+          "type": "path",
+          "id": "WSOlk",
+          "x": 795,
+          "y": 572,
+          "geometry": "M0 0l8 6-8 6z",
+          "fill": "#64748B",
+          "width": 8,
+          "height": 12
+        },
+        {
+          "type": "path",
+          "id": "SgIxt",
+          "x": 755,
+          "y": 572,
+          "geometry": "M8 0l-8 6 8 6z",
+          "fill": "#64748B",
+          "width": 8,
+          "height": 12
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "SSK2F",
+      "x": 464,
+      "y": -13,
+      "name": "AVAR Sequence Diagram",
+      "width": 1280,
+      "height": 980,
+      "fill": "#F8FAFC",
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "OCqOA",
+          "x": 32,
+          "y": 14,
+          "fill": "#0F172A",
+          "content": "AVAR — Sequence Diagram: Case Analysis Flow",
+          "fontFamily": "Inter",
+          "fontSize": 18,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "2hB05",
+          "x": 32,
+          "y": 40,
+          "fill": "#94A3B8",
+          "content": "Complete trace: ingest → ANALYZE → RESEARCH (parallel agents) → SYNTHESIZE → report",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "4IkYY",
+          "x": 50,
+          "y": 62,
+          "fill": "#F3F4F6",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#D1D5DB"
+          }
+        },
+        {
+          "type": "text",
+          "id": "PtQdq",
+          "x": 50,
+          "y": 62,
+          "fill": "#374151",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "User",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 11,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "rmT62",
+          "x": 119,
+          "y": 98,
+          "fill": "#D1D5DB",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "KlPzH",
+          "x": 225,
+          "y": 62,
+          "fill": "#DBEAFE",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#93C5FD"
+          }
+        },
+        {
+          "type": "text",
+          "id": "udG8W",
+          "x": 225,
+          "y": 62,
+          "fill": "#1E40AF",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "Frontend (React)",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "LvrIf",
+          "x": 294,
+          "y": 98,
+          "fill": "#93C5FD",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "mMdFN",
+          "x": 400,
+          "y": 62,
+          "fill": "#DCFCE7",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#6EE7B7"
+          }
+        },
+        {
+          "type": "text",
+          "id": "3z2A4",
+          "x": 400,
+          "y": 62,
+          "fill": "#14532D",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "Backend (Express)",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "u9Bod",
+          "x": 469,
+          "y": 98,
+          "fill": "#6EE7B7",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "w5UbR",
+          "x": 570,
+          "y": 62,
+          "fill": "#FEF9C3",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#FDE047"
+          }
+        },
+        {
+          "type": "text",
+          "id": "eSRCD",
+          "x": 570,
+          "y": 62,
+          "fill": "#713F12",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "Session Store",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "cYE9q",
+          "x": 639,
+          "y": 98,
+          "fill": "#FDE047",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "F5o1V",
+          "x": 750,
+          "y": 62,
+          "fill": "#FFEDD5",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#FB923C"
+          }
+        },
+        {
+          "type": "text",
+          "id": "krWHb",
+          "x": 750,
+          "y": 62,
+          "fill": "#9A3412",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "Claude API",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "B3IE7",
+          "x": 819,
+          "y": 98,
+          "fill": "#FB923C",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "BKnKE",
+          "x": 920,
+          "y": 62,
+          "fill": "#F5F3FF",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#C4B5FD"
+          }
+        },
+        {
+          "type": "text",
+          "id": "O3RXh",
+          "x": 920,
+          "y": 62,
+          "fill": "#5B21B6",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "Tavily Search",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "8KcIz",
+          "x": 989,
+          "y": 98,
+          "fill": "#C4B5FD",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 6,
+          "id": "udGWo",
+          "x": 1090,
+          "y": 62,
+          "fill": "#F1F5F9",
+          "width": 140,
+          "height": 36,
+          "stroke": {
+            "thickness": 1,
+            "fill": "#94A3B8"
+          }
+        },
+        {
+          "type": "text",
+          "id": "fLYD9",
+          "x": 1090,
+          "y": 62,
+          "fill": "#1E293B",
+          "textGrowth": "fixed-width-height",
+          "width": 140,
+          "height": 36,
+          "content": "File System",
+          "textAlign": "center",
+          "textAlignVertical": "middle",
+          "fontFamily": "Inter",
+          "fontSize": 10,
+          "fontWeight": "600"
+        },
+        {
+          "type": "rectangle",
+          "id": "Qyp3f",
+          "x": 1159,
+          "y": 98,
+          "fill": "#94A3B8",
+          "width": 2,
+          "height": 856
+        },
+        {
+          "type": "text",
+          "id": "6rwib",
+          "x": 32,
+          "y": 122,
+          "name": "s1",
+          "fill": "#94A3B8",
+          "content": "● INGEST",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "ai228",
+          "x": 32,
+          "y": 262,
+          "name": "s2",
+          "fill": "#94A3B8",
+          "content": "● ANALYZE",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "Zx2EU",
+          "x": 32,
+          "y": 577,
+          "name": "s3",
+          "fill": "#94A3B8",
+          "content": "● RESEARCH  (parallel agents)",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "EBadj",
+          "x": 32,
+          "y": 662,
+          "name": "s4",
+          "fill": "#94A3B8",
+          "content": "● SYNTHESIZE",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "ldjzG",
+          "x": 32,
+          "y": 802,
+          "name": "s5",
+          "fill": "#94A3B8",
+          "content": "● COMPLETE + REPORT",
+          "fontFamily": "Inter",
+          "fontSize": 8,
+          "fontWeight": "700"
+        },
+        {
+          "type": "rectangle",
+          "id": "eu2fz",
+          "x": 120,
+          "y": 150,
+          "name": "r1",
+          "fill": "#374151",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "kB1R0",
+          "x": 135,
+          "y": 138,
+          "name": "t1",
+          "fill": "#374151",
+          "content": "→ submit document",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "22kKI",
+          "x": 295,
+          "y": 180,
+          "name": "r2",
+          "fill": "#374151",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "LyJnI",
+          "x": 310,
+          "y": 168,
+          "name": "t2",
+          "fill": "#374151",
+          "content": "→ POST /api/ingest",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "iBuNd",
+          "x": 470,
+          "y": 210,
+          "name": "r3",
+          "fill": "#374151",
+          "width": 170,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "kKsgX",
+          "x": 487,
+          "y": 198,
+          "name": "t3",
+          "fill": "#374151",
+          "content": "→ createSession()",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "vIPhD",
+          "x": 470,
+          "y": 235,
+          "name": "r4",
+          "fill": "#6B7280",
+          "width": 170,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "anymE",
+          "x": 487,
+          "y": 223,
+          "name": "t4",
+          "fill": "#6B7280",
+          "content": "← { sessionId }",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "I20Sr",
+          "x": 295,
+          "y": 285,
+          "name": "r5",
+          "fill": "#374151",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "dOe48",
+          "x": 295,
+          "y": 273,
+          "name": "t5",
+          "fill": "#374151",
+          "content": "→ GET /stream (subscribe SSE)",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "fGPaM",
+          "x": 470,
+          "y": 315,
+          "name": "r6",
+          "fill": "#374151",
+          "width": 690,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "f1ZbF",
+          "x": 600,
+          "y": 303,
+          "name": "t6",
+          "fill": "#374151",
+          "content": "→ load agents + skills + prompts",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "iaCN4",
+          "x": 470,
+          "y": 345,
+          "name": "r7",
+          "fill": "#6B7280",
+          "width": 690,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "46ER6",
+          "x": 690,
+          "y": 333,
+          "name": "t7",
+          "fill": "#6B7280",
+          "content": "← file contents",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "HvbLn",
+          "x": 470,
+          "y": 375,
+          "name": "r8",
+          "fill": "#9A3412",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "JFzf5",
+          "x": 490,
+          "y": 363,
+          "name": "t8",
+          "fill": "#9A3412",
+          "content": "→ [ANALYZE] analyzeDocument()",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "T14Kh",
+          "x": 470,
+          "y": 405,
+          "name": "r9",
+          "fill": "#EA580C",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "mEE8Q",
+          "x": 570,
+          "y": 393,
+          "name": "t9",
+          "fill": "#EA580C",
+          "content": "← tool_use: web_search",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "pOXqx",
+          "x": 470,
+          "y": 435,
+          "name": "r10",
+          "fill": "#7C3AED",
+          "width": 520,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "FDLs7",
+          "x": 625,
+          "y": 423,
+          "name": "t10",
+          "fill": "#7C3AED",
+          "content": "→ search(query, lang)",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "axYpH",
+          "x": 470,
+          "y": 465,
+          "name": "r11",
+          "fill": "#A78BFA",
+          "width": 520,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "JYZyE",
+          "x": 690,
+          "y": 453,
+          "name": "t11",
+          "fill": "#7C3AED",
+          "content": "← results[]",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "TGYQg",
+          "x": 470,
+          "y": 495,
+          "name": "r12",
+          "fill": "#374151",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "uZply",
+          "x": 540,
+          "y": 483,
+          "name": "t12",
+          "fill": "#374151",
+          "content": "→ tool_result (continue)",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "9TK68",
+          "x": 470,
+          "y": 525,
+          "name": "r13",
+          "fill": "#6B7280",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "SoEvO",
+          "x": 490,
+          "y": 513,
+          "name": "t13",
+          "fill": "#6B7280",
+          "content": "← end_turn: { keyClaims, entities }",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "6kRCw",
+          "x": 470,
+          "y": 555,
+          "name": "r14",
+          "fill": "#374151",
+          "width": 170,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "c6gjb",
+          "x": 472,
+          "y": 543,
+          "name": "t14",
+          "fill": "#374151",
+          "content": "→ updateSession({ analysis })",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "2mpfA",
+          "x": 470,
+          "y": 605,
+          "name": "r15",
+          "fill": "#9A3412",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "ocoiK",
+          "x": 490,
+          "y": 593,
+          "name": "t15",
+          "fill": "#9A3412",
+          "content": "→ [RESEARCH] runAgent() × N",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "J6c3K",
+          "x": 470,
+          "y": 635,
+          "name": "r16",
+          "fill": "#6B7280",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "txbYT",
+          "x": 542,
+          "y": 623,
+          "name": "t16",
+          "fill": "#6B7280",
+          "content": "← end_turn: agent outputs",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "922te",
+          "x": 470,
+          "y": 690,
+          "name": "r17",
+          "fill": "#9A3412",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "OfrFr",
+          "x": 472,
+          "y": 678,
+          "name": "t17",
+          "fill": "#9A3412",
+          "content": "→ [SYNTHESIZE] synthesize(all outputs)",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "UH9mu",
+          "x": 470,
+          "y": 720,
+          "name": "r18",
+          "fill": "#6B7280",
+          "width": 350,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "T48PF",
+          "x": 562,
+          "y": 708,
+          "name": "t18",
+          "fill": "#6B7280",
+          "content": "← end_turn: report.md",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "JRZ7B",
+          "x": 470,
+          "y": 750,
+          "name": "r19",
+          "fill": "#374151",
+          "width": 170,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "xKO0a",
+          "x": 472,
+          "y": 738,
+          "name": "t19",
+          "fill": "#374151",
+          "content": "→ updateSession({ complete })",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "12jaO",
+          "x": 640,
+          "y": 775,
+          "name": "r20",
+          "fill": "#374151",
+          "width": 520,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "NZAUV",
+          "x": 830,
+          "y": 763,
+          "name": "t20",
+          "fill": "#374151",
+          "content": "→ saveSessions()",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "JQBSr",
+          "x": 295,
+          "y": 825,
+          "name": "r21",
+          "fill": "#2563EB",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "nDu7c",
+          "x": 299,
+          "y": 813,
+          "name": "t21",
+          "fill": "#2563EB",
+          "content": "← SSE { type: complete }",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "wOoAW",
+          "x": 295,
+          "y": 855,
+          "name": "r22",
+          "fill": "#374151",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "2A42L",
+          "x": 308,
+          "y": 843,
+          "name": "t22",
+          "fill": "#374151",
+          "content": "→ GET /api/report/:id",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "Yjitu",
+          "x": 295,
+          "y": 885,
+          "name": "r23",
+          "fill": "#6B7280",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "N2a0U",
+          "x": 295,
+          "y": 873,
+          "name": "t23",
+          "fill": "#6B7280",
+          "content": "← { report, analysis, telemetry }",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "XHklA",
+          "x": 120,
+          "y": 915,
+          "name": "r24",
+          "fill": "#374151",
+          "width": 175,
+          "height": 2
+        },
+        {
+          "type": "text",
+          "id": "vKlL0",
+          "x": 122,
+          "y": 903,
+          "name": "t24",
+          "fill": "#374151",
+          "content": "← Display report (8 tabs)",
+          "fontFamily": "Inter",
+          "fontSize": 9,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "VLYhe",
+          "x": 32,
+          "y": 119,
+          "name": "hr1",
+          "fill": "#E2E8F0",
+          "width": 1215,
+          "height": 1
+        },
+        {
+          "type": "rectangle",
+          "id": "i483d",
+          "x": 32,
+          "y": 259,
+          "name": "hr2",
+          "fill": "#E2E8F0",
+          "width": 1215,
+          "height": 1
+        },
+        {
+          "type": "rectangle",
+          "id": "7QUSB",
+          "x": 32,
+          "y": 574,
+          "name": "hr3",
+          "fill": "#E2E8F0",
+          "width": 1215,
+          "height": 1
+        },
+        {
+          "type": "rectangle",
+          "id": "WyGUv",
+          "x": 32,
+          "y": 659,
+          "name": "hr4",
+          "fill": "#E2E8F0",
+          "width": 1215,
+          "height": 1
+        },
+        {
+          "type": "rectangle",
+          "id": "GCacO",
+          "x": 32,
+          "y": 799,
+          "name": "hr5",
+          "fill": "#E2E8F0",
+          "width": 1215,
+          "height": 1
+        }
+      ]
+    }
+  ]
+}

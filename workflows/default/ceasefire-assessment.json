@@ -1,0 +1,9 @@
+{
+  "id": "ceasefire-assessment",
+  "name": "הערכת הפסקת אש",
+  "description": "לניתוח אירועי הפסקת אש, הסכמים ומשא ומתן בין גורמים עוינים",
+  "agents": ["agent-lebanon", "agent-devils-advocate", "agent-shia"],
+  "autoActivateKeywords": ["הפסקת אש", "ceasefire", "הסכם", "הפוגה", "שביתת נשק", "truce"],
+  "synthesisFocus": "התמקד במדדי יציבות ההסכם: טיב המנגנוני אכיפה, מידת האמון בין הצדדים, גורמי כישלון היסטוריים, ואינדיקטורים להחלפת אש עתידית",
+  "isDefault": true
+}

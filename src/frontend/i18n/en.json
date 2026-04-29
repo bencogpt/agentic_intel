@@ -1,0 +1,54 @@
+{
+  "app": {
+    "name": "AVAR",
+    "tagline": "Intelligence Assessment Validation System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "newAssessment": "New Assessment",
+    "skills": "Skills",
+    "agents": "Agents"
+  },
+  "dashboard": {
+    "title": "Recent Assessments",
+    "newButton": "New Assessment",
+    "noAssessments": "No assessments yet",
+    "status": {
+      "pending": "Pending",
+      "analyzing": "Analyzing",
+      "dispatching": "Dispatching",
+      "researching": "Researching",
+      "synthesizing": "Synthesizing",
+      "complete": "Complete",
+      "error": "Error"
+    }
+  },
+  "ingest": {
+    "title": "New Assessment",
+    "uploadLabel": "Drag file here or click to upload",
+    "supportedFormats": "Supported formats: .md, .txt, .docx, .pdf",
+    "pasteLabel": "Or paste text directly",
+    "pastePlaceholder": "Paste assessment text here...",
+    "analyzeButton": "Analyze Assessment",
+    "selectAgents": "Manually select agents (optional)"
+  },
+  "report": {
+    "title": "AVAR Report",
+    "executiveSummary": "Executive Summary",
+    "keyClaims": "Key Claims",
+    "contradictingEvidence": "Contradicting Evidence",
+    "alternatives": "Ranked Alternatives",
+    "recommendations": "Recommendations",
+    "transparencyLog": "Transparency Log",
+    "export": "Export",
+    "severity": "Severity",
+    "likelihood": "Likelihood",
+    "acceptAlternative": "Accept",
+    "rejectAlternative": "Reject"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "uploadFailed": "File upload failed.",
+    "unsupportedFormat": "Unsupported file format."
+  }
+}

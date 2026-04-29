@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Reports — generated locally, may contain sensitive assessments
+reports/*.md
+reports/*.pdf
+reports/*.docx
+reports/sessions.json
+reports/users.json
+
+# Firebase cache
+.firebase/
+
+# Claude Code internal
+.claude/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Skills/agents custom — may contain org-specific content
+skills/custom/*.md
+agents/custom/*.md
+
+# Firebase service account — never commit credentials
+*-service-account.json
+*-firebase-adminsdk-*.json
+firebase-debug.log
