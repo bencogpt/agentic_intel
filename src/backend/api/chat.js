@@ -3,7 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
-const { getSession, trackTelemetry } = require('../sessions/store');
+const { getOrFetchSession, trackTelemetry } = require('../sessions/store');
 const { search } = require('../search-backends/web-search');
 
 const router = express.Router();
@@ -54,7 +54,7 @@ ${reportExcerpt}
 
 // POST /api/chat/:sessionId — SSE streaming chat
 router.post('/:sessionId', async (req, res) => {
-  const session = getSession(req.params.sessionId);
+  const session = await getOrFetchSession(req.params.sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
   if (session.status !== 'complete') return res.status(400).json({ error: 'Report not ready' });
 

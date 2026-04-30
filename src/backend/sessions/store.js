@@ -36,7 +36,8 @@ function initFirestore() {
       .select('id', 'title', 'status', 'language', 'wordCount', 'createdAt', 'completedAt', 'error', 'telemetry', 'activeAgents', 'events')
       .get()
       .then(snap => {
-        snap.docs.forEach(d => { if (!sessions.has(d.id)) sessions.set(d.id, d.data()); });
+        // Mark as _stub so getOrFetchSession knows to fetch sessions_content on demand
+        snap.docs.forEach(d => { if (!sessions.has(d.id)) sessions.set(d.id, { ...d.data(), _stub: true }); });
         console.log(`[Store] Loaded ${snap.docs.length} session stubs from Firestore`);
       })
       .catch(err => console.error('[Store] Firestore load error:', err.message));
@@ -115,25 +116,26 @@ function getSession(id) {
   return sessions.get(id) || null;
 }
 
-// Async version for route handlers that may face cold-start cache miss.
-// Fetches both sessions/{id} (metadata) and sessions_content/{id} (report/analysis/agentOutputs).
+// Async version for route handlers — always returns a fully-hydrated session.
+// Stubs loaded at startup (metadata-only) are re-fetched from both collections.
 async function getOrFetchSession(id) {
   const cached = sessions.get(id);
-  if (cached) return cached;
-  if (!db) return null;
+  // Return immediately only if fully loaded by this instance (no _stub flag)
+  if (cached && !cached._stub) return cached;
+  if (!db) return cached || null;
   try {
     const [metaDoc, contentDoc] = await Promise.all([
       db.collection('sessions').doc(id).get(),
       db.collection('sessions_content').doc(id).get(),
     ]);
     if (!metaDoc.exists) return null;
-    const data = { ...metaDoc.data() };
+    const data = { ...metaDoc.data() }; // no _stub flag — fully loaded
     if (contentDoc.exists) Object.assign(data, contentDoc.data());
     sessions.set(id, data);
     return data;
   } catch (err) {
     console.error('[Store] getOrFetchSession error:', err.message);
-    return null;
+    return cached || null;
   }
 }
 
