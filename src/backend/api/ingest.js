@@ -1,7 +1,8 @@
 // ingest.js — Document ingestion: file upload + text paste
 const express = require('express');
 const multer = require('multer');
-const { createSession } = require('../sessions/store');
+const { createSession, updateSession } = require('../sessions/store');
+const { saveDocument } = require('../storage/documents');
 
 const router = express.Router();
 
@@ -26,18 +27,24 @@ function detectLanguage(text) {
 }
 
 // POST /api/ingest/text — paste raw text
-router.post('/text', (req, res) => {
+router.post('/text', async (req, res) => {
   const { text, title } = req.body;
   if (!text || typeof text !== 'string' || !text.trim()) {
     return res.status(400).json({ error: 'text is required' });
   }
-  const language = detectLanguage(text);
+  const trimmed  = text.trim();
+  const language = detectLanguage(trimmed);
   const sessionId = createSession({
     title: title || `הערכה ${new Date().toLocaleDateString('he-IL')}`,
-    documentText: text.trim(),
+    documentText: trimmed,
     language,
+    wordCount: trimmed.split(/\s+/).length,
   });
-  res.json({ sessionId, language, wordCount: text.trim().split(/\s+/).length });
+  // Persist document to GCS (or local file) — fire-and-forget; failure is non-fatal
+  saveDocument(sessionId, trimmed)
+    .then(path => updateSession(sessionId, { documentPath: path }))
+    .catch(err  => console.error('[Ingest] saveDocument failed:', err.message));
+  res.json({ sessionId, language, wordCount: trimmed.split(/\s+/).length });
 });
 
 // POST /api/ingest/file — upload a document
@@ -59,15 +66,22 @@ router.post('/file', upload.single('document'), async (req, res) => {
     text = data.text;
   }
 
-  if (!text.trim()) return res.status(422).json({ error: 'Could not extract text from file' });
+  const trimmed = text.trim();
+  if (!trimmed) return res.status(422).json({ error: 'Could not extract text from file' });
 
-  const language = detectLanguage(text);
+  const language = detectLanguage(trimmed);
+  const wordCount = trimmed.split(/\s+/).length;
   const sessionId = createSession({
     title: originalname.replace(/\.[^.]+$/, ''),
-    documentText: text.trim(),
+    documentText: trimmed,
     language,
+    wordCount,
   });
-  res.json({ sessionId, language, wordCount: text.trim().split(/\s+/).length });
+  // Persist document to GCS (or local file) — fire-and-forget; failure is non-fatal
+  saveDocument(sessionId, trimmed)
+    .then(path => updateSession(sessionId, { documentPath: path }))
+    .catch(err  => console.error('[Ingest] saveDocument failed:', err.message));
+  res.json({ sessionId, language, wordCount });
 });
 
 module.exports = router;

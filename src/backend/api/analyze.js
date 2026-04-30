@@ -9,6 +9,7 @@ const {
   appendEvent, appendAuditEntry, registerSSEClient, unregisterSSEClient, trackTelemetry,
 } = require('../sessions/store');
 const { search } = require('../search-backends/web-search');
+const { loadDocument } = require('../storage/documents');
 
 const router = express.Router();
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -265,9 +266,22 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
   try {
     const session = getSession(sessionId);
 
+    // Resolve document text — in-memory on same instance, or load from storage on cold-start
+    let documentText = session.documentText;
+    if (!documentText) {
+      documentText = await loadDocument(sessionId);
+      if (!documentText) {
+        appendEvent(sessionId, { type: 'error', message: 'מסמך לא נמצא — לא ניתן לנתח' });
+        updateSession(sessionId, { status: 'error', error: 'Document not found in storage' });
+        return;
+      }
+      // Cache in-memory only (STORAGE_FIELDS excludes documentText from Firestore writes)
+      updateSession(sessionId, { documentText });
+    }
+
     // Step 1 — Analyze document
     updateSession(sessionId, { status: 'analyzing', currentStep: 'ANALYZE' });
-    const analysis = await analyzeDocument(sessionId, session.documentText);
+    const analysis = await analyzeDocument(sessionId, documentText);
     updateSession(sessionId, { analysis });
 
     appendEvent(sessionId, {
@@ -310,7 +324,7 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
     // Step 3 — Research (agent dispatch)
     updateSession(sessionId, { status: 'researching', currentStep: 'RESEARCH' });
     appendEvent(sessionId, { type: 'step', step: 'RESEARCH', message: 'סוכנים מתחילים מחקר...' });
-    const { outputs: agentOutputs, missingSkills } = await dispatchAgents(sessionId, selectedAgents, session.documentText, analysis);
+    const { outputs: agentOutputs, missingSkills } = await dispatchAgents(sessionId, selectedAgents, documentText, analysis);
     updateSession(sessionId, { agentOutputs });
 
     // Deduplicate missing skills by id
@@ -335,7 +349,7 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
 
     // Step 4 — Synthesize
     updateSession(sessionId, { status: 'synthesizing', currentStep: 'SYNTHESIZE' });
-    const report = await synthesize(sessionId, session.documentText, analysis, agentOutputs, selectedAgents, synthesisFocus);
+    const report = await synthesize(sessionId, documentText, analysis, agentOutputs, selectedAgents, synthesisFocus);
 
     appendEvent(sessionId, { type: 'complete', message: 'הדו"ח הושלם' });
     updateSession(sessionId, { status: 'complete', report, completedAt: new Date().toISOString() });
@@ -359,16 +373,21 @@ router.post('/', async (req, res) => {
   runAnalysis(sessionId, agentIds, synthesisFocus);
 });
 
-// GET /api/analyze/:sessionId/status — polling fallback
+// GET /api/analyze/:sessionId/status?since=N — polling endpoint
+// Returns status + all events since index N (so client can request only new ones)
 router.get('/:sessionId/status', async (req, res) => {
   const session = getSession(req.params.sessionId) || await getOrFetchSession(req.params.sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
+  const since = parseInt(req.query.since, 10) || 0;
+  const allEvents = session.events || [];
   res.json({
     sessionId: session.id,
     status: session.status,
     currentStep: session.currentStep,
     activeAgents: session.activeAgents || [],
     error: session.error || null,
+    events: allEvents.slice(since),
+    totalEvents: allEvents.length,
   });
 });
 

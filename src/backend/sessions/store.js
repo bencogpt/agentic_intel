@@ -13,6 +13,11 @@ const sessions      = new Map();   // in-memory cache (always used)
 const sseClients    = new Map();   // local mode: sessionId → Express res
 const sseUnsubscribers = new Map(); // Firebase mode: sessionId → Firestore unsubscribe fn
 
+// Fields stored in GCS / local file — never written to Firestore
+const STORAGE_FIELDS = new Set(['documentText']);
+// Fields stored in sessions_content/{id} — heavy content that could exceed 1MB with metadata
+const CONTENT_FIELDS = new Set(['report', 'analysis', 'agentOutputs']);
+
 // ─── Firestore (Firebase mode) ────────────────────────────────────────────────
 
 let db = null;
@@ -96,7 +101,11 @@ function createSession(data) {
   };
   sessions.set(id, session);
   if (db) {
-    db.collection('sessions').doc(id).set(session)
+    // Write metadata only: strip documentText (→ GCS) and content fields (→ sessions_content)
+    const firestoreMeta = Object.fromEntries(
+      Object.entries(session).filter(([k]) => !CONTENT_FIELDS.has(k) && !STORAGE_FIELDS.has(k))
+    );
+    db.collection('sessions').doc(id).set(firestoreMeta)
       .catch(err => console.error('[Store] createSession Firestore error:', err.message));
   }
   return id;
@@ -106,15 +115,20 @@ function getSession(id) {
   return sessions.get(id) || null;
 }
 
-// Async version for route handlers that may face cold-start cache miss
+// Async version for route handlers that may face cold-start cache miss.
+// Fetches both sessions/{id} (metadata) and sessions_content/{id} (report/analysis/agentOutputs).
 async function getOrFetchSession(id) {
   const cached = sessions.get(id);
   if (cached) return cached;
   if (!db) return null;
   try {
-    const doc = await db.collection('sessions').doc(id).get();
-    if (!doc.exists) return null;
-    const data = doc.data();
+    const [metaDoc, contentDoc] = await Promise.all([
+      db.collection('sessions').doc(id).get(),
+      db.collection('sessions_content').doc(id).get(),
+    ]);
+    if (!metaDoc.exists) return null;
+    const data = { ...metaDoc.data() };
+    if (contentDoc.exists) Object.assign(data, contentDoc.data());
     sessions.set(id, data);
     return data;
   } catch (err) {
@@ -129,8 +143,22 @@ function updateSession(id, patch) {
   const updated = { ...session, ...patch };
   sessions.set(id, updated);
   if (db) {
-    db.collection('sessions').doc(id).set(updated)
-      .catch(err => console.error('[Store] updateSession Firestore error:', err.message));
+    // Route fields to correct collection; skip GCS-managed fields entirely
+    const metaPatch   = {};
+    const contentPatch = {};
+    for (const [k, v] of Object.entries(patch)) {
+      if (STORAGE_FIELDS.has(k)) continue;            // documentText → GCS only
+      if (CONTENT_FIELDS.has(k)) contentPatch[k] = v; // heavy content → sessions_content
+      else metaPatch[k] = v;                           // everything else → sessions (metadata)
+    }
+    if (Object.keys(metaPatch).length > 0) {
+      db.collection('sessions').doc(id).set(metaPatch, { merge: true })
+        .catch(err => console.error('[Store] updateSession metadata error:', err.message));
+    }
+    if (Object.keys(contentPatch).length > 0) {
+      db.collection('sessions_content').doc(id).set(contentPatch, { merge: true })
+        .catch(err => console.error('[Store] updateSession content error:', err.message));
+    }
   } else if (patch.status === 'complete' || patch.status === 'error') {
     saveSessions();
   }

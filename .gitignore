@@ -19,6 +19,7 @@ reports/*.pdf
 reports/*.docx
 reports/sessions.json
 reports/users.json
+reports/docs/
 
 # Firebase cache
 .firebase/
