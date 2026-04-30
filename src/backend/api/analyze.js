@@ -10,6 +10,8 @@ const {
 } = require('../sessions/store');
 const { search } = require('../search-backends/web-search');
 const { loadDocument } = require('../storage/documents');
+const { getSkillContent } = require('./skills');
+const { loadAllAgentsWithBody } = require('./agents');
 
 const router = express.Router();
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -45,28 +47,6 @@ function getSystemPrompt() {
   return `${rawSystemPrompt}\n\n**Current date: ${today}**`;
 }
 
-function findSkillFile(skillId) {
-  for (const sub of ['default', 'custom']) {
-    const p = path.join(PROJECT_ROOT, 'skills', sub, `${skillId}.md`);
-    if (fs.existsSync(p)) return p;
-  }
-  return null;
-}
-
-function loadAllAgents() {
-  const agents = [];
-  for (const sub of ['default', 'custom']) {
-    const dir = path.join(PROJECT_ROOT, 'agents', sub);
-    if (!fs.existsSync(dir)) continue;
-    for (const file of fs.readdirSync(dir)) {
-      if (!file.endsWith('.md')) continue;
-      const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
-      const { data, content } = matter(raw);
-      agents.push({ id: file.replace('.md', ''), ...data, body: content, isCustom: sub === 'custom' });
-    }
-  }
-  return agents;
-}
 
 function extractJson(text) {
   // Try code block first
@@ -190,16 +170,17 @@ async function runAgent(sessionId, agent, documentText, analysis) {
   updateAgentStatus(sessionId, agent.id, 'active');
   appendEvent(sessionId, { type: 'agent_start', agentId: agent.id, agentName: agent.name });
 
-  // Collect missing skills for this agent
+  // Load skill content from Firestore/disk (async, handles multi-instance Cloud Run)
   const missingSkills = [];
-  const skillsContent = (agent.skills || []).map(skillId => {
-    const p = findSkillFile(skillId);
-    if (!p) {
-      missingSkills.push({ id: skillId, requiredBy: agent.name, agentId: agent.id });
-      return '';
+  const rawSkills = await Promise.all(
+    (agent.skills || []).map(skillId => getSkillContent(skillId))
+  );
+  const skillsContent = rawSkills.map((raw, i) => {
+    if (!raw) {
+      missingSkills.push({ id: agent.skills[i], requiredBy: agent.name, agentId: agent.id });
+      return null;
     }
-    const { content } = matter(fs.readFileSync(p, 'utf-8'));
-    return content;
+    return matter(raw).content; // body only (after frontmatter)
   }).filter(Boolean).join('\n\n---\n\n');
 
   const agentSystem = `${getSystemPrompt()}\n\n## תפקיד הסוכן\n${agent.body}\n\n## ידע מקצועי (מיומנויות)\n${skillsContent}`;
@@ -291,7 +272,8 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
     });
 
     // Step 2 — Select agents; detect missing ones
-    const allAgents = loadAllAgents();
+    // loadAllAgentsWithBody reads from Firestore for custom agents (multi-instance safe)
+    const allAgents = await loadAllAgentsWithBody();
     const availableIds = new Set(allAgents.map(a => a.id));
     const suggestedIds = requestedAgentIds?.length
       ? requestedAgentIds
