@@ -37,6 +37,7 @@ function parseMeta(id, data, isCustom) {
     skills:         data.skills || [],
     autoActivateOn: data.auto_activate_on || [],
     priority:       data.priority || 3,
+    model:          data.model || null,
     isCustom,
   };
 }
@@ -186,6 +187,7 @@ router.post('/', async (req, res) => {
         skills:           data.skills || [],
         auto_activate_on: data.auto_activate_on || [],
         priority:         data.priority || 3,
+        model:            data.model || null,
         createdAt:        new Date().toISOString(),
       });
     } catch (err) {
@@ -206,7 +208,14 @@ router.put('/:agentId', async (req, res) => {
   if (db) {
     try {
       const doc = await db.collection('custom_agents').doc(agentId).get();
-      if (!doc.exists) return res.status(403).json({ error: 'Only custom agents can be edited' });
+      // Allow disk-based custom agents (pre-Firestore migration) — migrate on first edit
+      if (!doc.exists) {
+        const diskPath = path.join(AGENTS_DIR, 'custom', `${agentId}.md`);
+        if (!fs.existsSync(diskPath)) {
+          return res.status(403).json({ error: 'Only custom agents can be edited' });
+        }
+        // Agent exists on disk but not Firestore — migrate it now, fall through to write
+      }
       const { data } = matter(content);
       await db.collection('custom_agents').doc(agentId).set({
         content,
@@ -216,6 +225,7 @@ router.put('/:agentId', async (req, res) => {
         skills:           data.skills || [],
         auto_activate_on: data.auto_activate_on || [],
         priority:         data.priority || 3,
+        model:            data.model || null,
         updatedAt:        new Date().toISOString(),
       }, { merge: true });
     } catch (err) {

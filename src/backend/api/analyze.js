@@ -3,42 +3,24 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
-const Anthropic = require('@anthropic-ai/sdk');
 const {
-  getSession, getOrFetchSession, updateSession, updateAgentStatus,
+  getSession, getOrFetchSession, getSessionFreshMeta, updateSession, updateAgentStatus,
   appendEvent, appendAuditEntry, registerSSEClient, unregisterSSEClient, trackTelemetry,
 } = require('../sessions/store');
 const { search } = require('../search-backends/web-search');
 const { loadDocument } = require('../storage/documents');
 const { getSkillContent } = require('./skills');
 const { loadAllAgentsWithBody } = require('./agents');
+const { chat, appendAssistant, appendToolResults, resolveModel, DEFAULT_MODEL } = require('../llm/chat');
 
 const router = express.Router();
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-6';
 const MAX_CONCURRENT_AGENTS = 5;
 
 const PROMPTS_DIR = path.resolve(__dirname, '../prompts');
-const PROJECT_ROOT = path.resolve(__dirname, '../../../');
 
 const rawSystemPrompt = fs.readFileSync(path.join(PROMPTS_DIR, 'system-prompt.md'), 'utf-8');
 const analysisPromptTemplate = fs.readFileSync(path.join(PROMPTS_DIR, 'analysis-prompt.md'), 'utf-8');
 const synthesisPromptTemplate = fs.readFileSync(path.join(PROMPTS_DIR, 'synthesis-prompt.md'), 'utf-8');
-
-// ─── Web Search Tool Definition ───────────────────────────────────────────────
-
-const WEB_SEARCH_TOOL = {
-  name: 'web_search',
-  description: 'Search the web for current information. MUST be used before making any factual claim about specific events, persons, or situations. Use Hebrew queries for Israeli/Middle East sources, English for international sources, Arabic for Arab media.',
-  input_schema: {
-    type: 'object',
-    properties: {
-      query: { type: 'string', description: 'The search query — be specific, include dates/locations/names' },
-      lang: { type: 'string', enum: ['he', 'en', 'ar'], description: 'Query language: he=Hebrew, en=English, ar=Arabic' },
-    },
-    required: ['query'],
-  },
-};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -70,85 +52,73 @@ function formatSearchResults(results) {
 
 // ─── Agentic Tool-Use Loop ────────────────────────────────────────────────────
 
-async function runWithSearch(sessionId, system, userContent, agentLabel) {
+async function runWithSearch(sessionId, system, userContent, agentLabel, llmConfig) {
+  const { provider, model } = llmConfig;
   const messages = [{ role: 'user', content: userContent }];
 
   while (true) {
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: 8192,
-      system,
-      tools: [WEB_SEARCH_TOOL],
-      messages,
-    });
+    const response = await chat(provider, model, system, messages);
 
-    // Track LLM call and token usage
     trackTelemetry(sessionId, {
-      llmCall: true,
-      inputTokens: response.usage?.input_tokens || 0,
-      outputTokens: response.usage?.output_tokens || 0,
+      llmCall:      true,
+      inputTokens:  response.usage.inputTokens,
+      outputTokens: response.usage.outputTokens,
     });
 
-    if (response.stop_reason === 'end_turn' || response.stop_reason === 'max_tokens') {
-      return response.content.find(b => b.type === 'text')?.text || '';
+    if (response.stopReason === 'end_turn') {
+      return response.text || '';
     }
 
-    if (response.stop_reason === 'tool_use') {
-      messages.push({ role: 'assistant', content: response.content });
+    // tool_use — append assistant turn, process calls, append results
+    appendAssistant(provider, messages, response.raw);
 
-      const toolResults = [];
-      for (const block of response.content) {
-        if (block.type !== 'tool_use') continue;
-        if (block.name !== 'web_search') continue;
-
-        const { query, lang = 'en' } = block.input || {};
-        if (!query) {
-          console.error(`[web_search] tool_use missing query field. input was: ${JSON.stringify(block.input)}`);
-          continue;
-        }
-        appendEvent(sessionId, { type: 'search', query, lang, agent: agentLabel });
-        trackTelemetry(sessionId, { searchCall: true });
-
-        let results = [];
-        let searchError = null;
-        try {
-          results = await search(query, lang);
-          appendEvent(sessionId, { type: 'search_results', query, count: results.length, agent: agentLabel });
-        } catch (err) {
-          searchError = err.message;
-          appendEvent(sessionId, { type: 'search_error', query, error: err.message, agent: agentLabel });
-        }
-
-        appendAuditEntry(sessionId, {
-          agent: agentLabel,
-          query,
-          lang,
-          results,
-          error: searchError,
-          count: results.length,
-        });
-
-        toolResults.push({
-          type: 'tool_result',
-          tool_use_id: block.id,
-          content: formatSearchResults(results),
-        });
+    const toolResults = [];
+    for (const tc of response.toolCalls) {
+      // Cohere requires a result for every tool_call_id — never skip without pushing a result
+      if (tc.name !== 'web_search') {
+        toolResults.push({ id: tc.id, content: 'unknown tool' });
+        continue;
       }
 
-      messages.push({ role: 'user', content: toolResults });
-    } else {
-      // unexpected stop reason
-      return response.content.find(b => b.type === 'text')?.text || '';
+      const { query, lang = 'en' } = tc.input || {};
+      if (!query) {
+        console.error(`[web_search] missing query. input: ${JSON.stringify(tc.input)}`);
+        toolResults.push({ id: tc.id, content: 'missing query' });
+        continue;
+      }
+
+      appendEvent(sessionId, { type: 'search', query, lang, agent: agentLabel });
+      trackTelemetry(sessionId, { searchCall: true });
+
+      let results = [];
+      let searchError = null;
+      try {
+        results = await search(query, lang);
+        appendEvent(sessionId, { type: 'search_results', query, count: results.length, agent: agentLabel });
+      } catch (err) {
+        searchError = err.message;
+        appendEvent(sessionId, { type: 'search_error', query, error: err.message, agent: agentLabel });
+      }
+
+      appendAuditEntry(sessionId, { agent: agentLabel, query, lang, results, error: searchError, count: results.length });
+      toolResults.push({ id: tc.id, content: formatSearchResults(results) });
     }
+
+    appendToolResults(provider, messages, toolResults);
   }
 }
 
 // ─── Core Analysis Steps ──────────────────────────────────────────────────────
 
-async function analyzeDocument(sessionId, documentText) {
+async function analyzeDocument(sessionId, documentText, llmConfig, availableAgentIds = []) {
   appendEvent(sessionId, { type: 'step', step: 'ANALYZE', message: 'מתחיל ניתוח מסמך...' });
-  const userMessage = analysisPromptTemplate.replace('{{DOCUMENT}}', documentText);
-  const text = await runWithSearch(sessionId, getSystemPrompt(), userMessage, 'מנתח');
+  const agentList = availableAgentIds.length
+    ? availableAgentIds.map(id => `- ${id}`).join('\n')
+    : '(none configured)';
+  const userMessage = analysisPromptTemplate
+    .replace('{{AVAILABLE_AGENTS}}', agentList)
+    .replace('{{DOCUMENT}}', documentText);
+  const text = await runWithSearch(sessionId, getSystemPrompt(), userMessage, 'מנתח', llmConfig);
   const raw = extractJson(text);
   try {
     return JSON.parse(raw);
@@ -166,7 +136,7 @@ async function analyzeDocument(sessionId, documentText) {
   }
 }
 
-async function runAgent(sessionId, agent, documentText, analysis) {
+async function runAgent(sessionId, agent, documentText, analysis, llmConfig) {
   updateAgentStatus(sessionId, agent.id, 'active');
   appendEvent(sessionId, { type: 'agent_start', agentId: agent.id, agentName: agent.name });
 
@@ -190,7 +160,7 @@ async function runAgent(sessionId, agent, documentText, analysis) {
 
   const userMessage = `# מסמך ההערכה\n\n${documentText}\n\n# טענות מרכזיות שזוהו\n\n${claimsText}\n\nנתח את המסמך לפי תפקידך. חפש מידע עדכני לפני כל טענה עובדתית. כתוב את הניתוח בעברית.`;
 
-  const output = await runWithSearch(sessionId, agentSystem, userMessage, agent.name);
+  const output = await runWithSearch(sessionId, agentSystem, userMessage, agent.name, llmConfig);
 
   updateAgentStatus(sessionId, agent.id, 'complete');
   appendEvent(sessionId, { type: 'agent_complete', agentId: agent.id, agentName: agent.name });
@@ -198,7 +168,7 @@ async function runAgent(sessionId, agent, documentText, analysis) {
   return { agentId: agent.id, agentName: agent.name, output, completedAt: new Date().toISOString(), missingSkills };
 }
 
-async function dispatchAgents(sessionId, agents, documentText, analysis) {
+async function dispatchAgents(sessionId, agents, documentText, analysis, llmConfig) {
   const outputs = {};
   const collectedMissingSkills = [];
   for (let i = 0; i < agents.length; i += MAX_CONCURRENT_AGENTS) {
@@ -207,7 +177,10 @@ async function dispatchAgents(sessionId, agents, documentText, analysis) {
       type: 'dispatch',
       message: `מפעיל ${chunk.map(a => a.name).join(', ')}`,
     });
-    const results = await Promise.all(chunk.map(a => runAgent(sessionId, a, documentText, analysis)));
+    const results = await Promise.all(chunk.map(a => {
+      const agentConfig = a.model ? resolveModel(a.model) : llmConfig;
+      return runAgent(sessionId, a, documentText, analysis, agentConfig);
+    }));
     results.forEach(r => {
       outputs[r.agentId] = r;
       collectedMissingSkills.push(...(r.missingSkills || []));
@@ -216,7 +189,7 @@ async function dispatchAgents(sessionId, agents, documentText, analysis) {
   return { outputs, missingSkills: collectedMissingSkills };
 }
 
-async function synthesize(sessionId, documentText, analysis, agentOutputs, agents, synthesisFocus) {
+async function synthesize(sessionId, documentText, analysis, agentOutputs, agents, synthesisFocus, llmConfig) {
   appendEvent(sessionId, { type: 'step', step: 'SYNTHESIZE', message: 'מסנתז דו"ח סופי...' });
 
   const agentOutputsText = Object.values(agentOutputs)
@@ -231,7 +204,7 @@ async function synthesize(sessionId, documentText, analysis, agentOutputs, agent
     .replace('{{AGENT_OUTPUTS}}', agentOutputsText)
     .replace('{{DOCUMENT_SUMMARY}}', documentText.substring(0, 1500)) + focusNote;
 
-  const content = await runWithSearch(sessionId, getSystemPrompt(), userMessage, 'מסנתז');
+  const content = await runWithSearch(sessionId, getSystemPrompt(), userMessage, 'מסנתז', llmConfig);
 
   return {
     content,
@@ -243,8 +216,9 @@ async function synthesize(sessionId, documentText, analysis, agentOutputs, agent
 
 // ─── Background Runner ────────────────────────────────────────────────────────
 
-async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
+async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus, modelId) {
   try {
+    const llmConfig = resolveModel(modelId || DEFAULT_MODEL);
     const session = getSession(sessionId);
 
     // Resolve document text — in-memory on same instance, or load from storage on cold-start
@@ -260,9 +234,13 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
       updateSession(sessionId, { documentText });
     }
 
+    // Load agents early so analysis prompt can tell the model what's available,
+    // enabling it to suggest both in-system agents AND new ones that are missing.
+    const allAgents = await loadAllAgentsWithBody();
+
     // Step 1 — Analyze document
-    updateSession(sessionId, { status: 'analyzing', currentStep: 'ANALYZE' });
-    const analysis = await analyzeDocument(sessionId, documentText);
+    updateSession(sessionId, { status: 'analyzing', currentStep: 'ANALYZE', model: llmConfig.model });
+    const analysis = await analyzeDocument(sessionId, documentText, llmConfig, allAgents.map(a => a.id));
     updateSession(sessionId, { analysis });
 
     appendEvent(sessionId, {
@@ -272,8 +250,6 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
     });
 
     // Step 2 — Select agents; detect missing ones
-    // loadAllAgentsWithBody reads from Firestore for custom agents (multi-instance safe)
-    const allAgents = await loadAllAgentsWithBody();
     const availableIds = new Set(allAgents.map(a => a.id));
     const suggestedIds = requestedAgentIds?.length
       ? requestedAgentIds
@@ -306,7 +282,7 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
     // Step 3 — Research (agent dispatch)
     updateSession(sessionId, { status: 'researching', currentStep: 'RESEARCH' });
     appendEvent(sessionId, { type: 'step', step: 'RESEARCH', message: 'סוכנים מתחילים מחקר...' });
-    const { outputs: agentOutputs, missingSkills } = await dispatchAgents(sessionId, selectedAgents, documentText, analysis);
+    const { outputs: agentOutputs, missingSkills } = await dispatchAgents(sessionId, selectedAgents, documentText, analysis, llmConfig);
     updateSession(sessionId, { agentOutputs });
 
     // Deduplicate missing skills by id
@@ -331,7 +307,7 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
 
     // Step 4 — Synthesize
     updateSession(sessionId, { status: 'synthesizing', currentStep: 'SYNTHESIZE' });
-    const report = await synthesize(sessionId, documentText, analysis, agentOutputs, selectedAgents, synthesisFocus);
+    const report = await synthesize(sessionId, documentText, analysis, agentOutputs, selectedAgents, synthesisFocus, llmConfig);
 
     appendEvent(sessionId, { type: 'complete', message: 'הדו"ח הושלם' });
     updateSession(sessionId, { status: 'complete', report, completedAt: new Date().toISOString() });
@@ -346,19 +322,19 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus) {
 
 // POST /api/analyze — start analysis
 router.post('/', async (req, res) => {
-  const { sessionId, agentIds, synthesisFocus } = req.body;
+  const { sessionId, agentIds, synthesisFocus, model } = req.body;
   if (!sessionId) return res.status(400).json({ error: 'sessionId is required' });
   const session = getSession(sessionId) || await getOrFetchSession(sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
 
   res.json({ sessionId, status: 'analyzing' });
-  runAnalysis(sessionId, agentIds, synthesisFocus);
+  runAnalysis(sessionId, agentIds, synthesisFocus, model);
 });
 
 // GET /api/analyze/:sessionId/status?since=N — polling endpoint
-// Returns status + all events since index N (so client can request only new ones)
+// Always reads fresh metadata from Firestore so cross-instance events are visible.
 router.get('/:sessionId/status', async (req, res) => {
-  const session = getSession(req.params.sessionId) || await getOrFetchSession(req.params.sessionId);
+  const session = await getSessionFreshMeta(req.params.sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
   const since = parseInt(req.query.since, 10) || 0;
   const allEvents = session.events || [];

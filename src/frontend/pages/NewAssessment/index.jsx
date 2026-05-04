@@ -12,6 +12,8 @@ export default function NewAssessment() {
   const [selectedAgents, setSelectedAgents] = useState([]);
   const [workflows, setWorkflows] = useState([]);
   const [activeWorkflow, setActiveWorkflow] = useState(null);
+  const [availableModels, setAvailableModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState(null); // null = server default
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [dragOver, setDragOver] = useState(false);
@@ -19,6 +21,12 @@ export default function NewAssessment() {
   useEffect(() => {
     api.agents.list().catch(() => []).then(setAgents);
     api.workflows.list().catch(() => []).then(setWorkflows);
+    api.models.list().catch(() => null).then(data => {
+      if (data?.models) {
+        setAvailableModels(data.models);
+        setSelectedModel(data.default);
+      }
+    });
   }, []);
 
   // Auto-suggest workflow when text changes
@@ -60,6 +68,7 @@ export default function NewAssessment() {
         ingestResult.sessionId,
         selectedAgents.length ? selectedAgents : undefined,
         activeWorkflow?.synthesisFocus || undefined,
+        selectedModel || undefined,
       );
       navigate(`/processing/${ingestResult.sessionId}`);
     } catch (e) {
@@ -161,6 +170,49 @@ export default function NewAssessment() {
                 <p className="font-medium truncate">{w.name}</p>
                 {w.agents?.length > 0 && (
                   <p className="text-xs text-gray-400 mt-0.5">{w.agents.length} סוכנים</p>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Model selector */}
+      {availableModels.length > 0 && (
+        <div className="card mb-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">מודל שפה</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {availableModels.map(m => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setSelectedModel(m.id)}
+                className={`text-right p-4 rounded-xl border-2 transition-all ${
+                  selectedModel === m.id
+                    ? 'border-brand bg-brand/5'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className={`text-sm font-semibold truncate ${selectedModel === m.id ? 'text-brand' : 'text-gray-800'}`}>
+                      {m.label}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5 truncate">{m.labelEn}</p>
+                    <p className="text-xs text-gray-500 mt-1 leading-snug">{m.description}</p>
+                  </div>
+                  <div className={`shrink-0 w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center ${
+                    selectedModel === m.id ? 'border-brand bg-brand' : 'border-gray-300'
+                  }`}>
+                    {selectedModel === m.id && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                    )}
+                  </div>
+                </div>
+                {m.provider === 'cohere' && (
+                  <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 font-medium">
+                    Reasoning
+                  </span>
                 )}
               </button>
             ))}

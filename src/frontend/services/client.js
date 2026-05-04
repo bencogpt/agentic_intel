@@ -38,8 +38,11 @@ export const api = {
     },
   },
   analyze: {
-    start: (sessionId, agentIds, synthesisFocus) => request('POST', '/analyze', { sessionId, agentIds, synthesisFocus }),
-    status: (sessionId) => request('GET', `/analyze/${sessionId}/status`),
+    start: (sessionId, agentIds, synthesisFocus, model) => request('POST', '/analyze', { sessionId, agentIds, synthesisFocus, model }),
+    status: (sessionId, since = 0) => request('GET', `/analyze/${sessionId}/status?since=${since}`),
+  },
+  models: {
+    list: () => request('GET', '/models'),
   },
   workflows: {
     list: () => request('GET', '/workflows'),

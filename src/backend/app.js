@@ -39,6 +39,21 @@ function createApp() {
   app.use('/api/workflows', require('./api/workflows'));
   app.use('/api/users',     require('./api/users'));
 
+  // Model registry — returns available LLM models for the frontend selector
+  app.get('/api/models', (_req, res) => {
+    const { MODELS, DEFAULT_MODEL } = require('./llm/chat');
+    res.json({
+      default: DEFAULT_MODEL,
+      models: Object.entries(MODELS).map(([id, m]) => ({
+        id,
+        label:       m.label,
+        labelEn:     m.labelEn,
+        description: m.description,
+        provider:    m.provider,
+      })),
+    });
+  });
+
   app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
   app.use((err, _req, res, _next) => {

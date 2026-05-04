@@ -14,6 +14,7 @@ const EMPTY_FORM = {
   name: '',
   role: '',
   priority: 3,
+  model: 'claude-sonnet-4-6',
   description: '',
   instructions: '',
   questions: '',
@@ -21,6 +22,11 @@ const EMPTY_FORM = {
   skills: [],
   keywords: '',
 };
+
+const AGENT_MODELS = [
+  { id: 'claude-sonnet-4-6',   label: 'Claude Sonnet', desc: 'מהיר ומדויק' },
+  { id: 'command-a-03-2025', label: 'Cohere Command A', desc: 'הסקה מעמיקה' },
+];
 
 const PRIORITY_LABELS = {
   1: 'קריטי — תמיד מופעל ראשון',
@@ -52,6 +58,7 @@ export function agentToForm(agent) {
     name: agent.name || '',
     role: agent.role || '',
     priority: agent.priority || 3,
+    model: agent.model || 'claude-sonnet-4-6',
     description: parseBodySection(body, 'תיאור הסוכן'),
     instructions: parseBodySection(body, 'הנחיות פרומפט'),
     questions: parseBodySection(body, 'שאלות ייחודיות'),
@@ -77,6 +84,7 @@ version: 1.0
 author: custom
 created: ${today}
 last_modified: ${today}
+model: ${form.model || 'claude-sonnet-4-6'}
 skills:
 ${skillLines || '[]'}
 auto_activate_on: [${keywords.join(', ')}]
@@ -98,10 +106,12 @@ ${form.outputFormat}
 }
 
 function slugify(name) {
-  return 'agent-' + name.toLowerCase()
+  const ascii = name.toLowerCase()
     .replace(/[^a-z0-9\s]/g, '')
     .trim()
     .replace(/\s+/g, '-');
+  // Fallback to timestamp when name is all non-ASCII (e.g. Hebrew)
+  return 'agent-' + (ascii || Date.now().toString(36));
 }
 
 // ─── Field wrapper ────────────────────────────────────────────────────────────
@@ -136,6 +146,22 @@ function Step1({ form, set, isFork }) {
       <Field label="תפקיד קצר" required hint="משפט אחד — מה הסוכן עושה">
         <input className="input w-full" value={form.role} onChange={e => set('role', e.target.value)}
           placeholder="מנתח השלכות כלכליות וסנקציות" />
+      </Field>
+      <Field label="מודל שפה" hint="המודל שהסוכן ישתמש בו לניתוח — עוקף את בחירת המודל הכללית">
+        <div className="flex gap-2">
+          {AGENT_MODELS.map(m => (
+            <button key={m.id} type="button"
+              onClick={() => set('model', m.id)}
+              className={`flex-1 px-3 py-2.5 rounded-lg text-sm border transition-colors text-right ${
+                form.model === m.id
+                  ? 'bg-brand text-white border-brand'
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-brand'
+              }`}>
+              <p className="font-medium">{m.label}</p>
+              <p className={`text-xs mt-0.5 ${form.model === m.id ? 'opacity-80' : 'text-gray-400'}`}>{m.desc}</p>
+            </button>
+          ))}
+        </div>
       </Field>
       <Field label="עדיפות הפעלה" hint="קובע את סדר הפעלת הסוכנים">
         <div className="flex gap-2 flex-wrap">
@@ -182,10 +208,22 @@ function Step2({ form, set }) {
 function Step3({ form, set }) {
   const [allSkills, setAllSkills] = useState([]);
   const [loadingSkills, setLoadingSkills] = useState(true);
+  const [listError, setListError] = useState('');
+  const [showCreate, setShowCreate] = useState(false);
+  const [newSkill, setNewSkill] = useState({ name: '', name_en: '', description: '' });
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
 
-  useEffect(() => {
-    api.skills.list().then(setAllSkills).finally(() => setLoadingSkills(false));
-  }, []);
+  const loadSkills = () => {
+    setLoadingSkills(true);
+    setListError('');
+    api.skills.list()
+      .then(skills => setAllSkills(skills || []))
+      .catch(e => setListError(e.message))
+      .finally(() => setLoadingSkills(false));
+  };
+
+  useEffect(() => { loadSkills(); }, []);
 
   const toggle = (id) => {
     set('skills', form.skills.includes(id)
@@ -194,14 +232,98 @@ function Step3({ form, set }) {
     );
   };
 
+  const handleCreate = async () => {
+    if (!newSkill.name.trim() || !newSkill.name_en.trim()) return;
+    setCreating(true);
+    setCreateError('');
+    try {
+      const id = 'skill-' + newSkill.name_en.toLowerCase()
+        .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const today = new Date().toISOString().split('T')[0];
+      const content = [
+        '---',
+        `name: ${newSkill.name}`,
+        `name_en: ${newSkill.name_en}`,
+        'version: 1.0',
+        'author: custom',
+        `created: ${today}`,
+        `last_modified: ${today}`,
+        'tags: []',
+        'auto_trigger_keywords: []',
+        '---',
+        '',
+        '## תיאור המיומנות',
+        newSkill.description || '',
+        '',
+        '## שאלות ליבה (Core Questions)',
+        '',
+        '## הנחיות ניתוח (Analysis Instructions)',
+        '',
+        '## מקורות מועדפים (Preferred Sources)',
+        '',
+        '## דוגמאות (Examples)',
+        '',
+        '## אזהרות והטיות ידועות (Known Biases & Warnings)',
+      ].join('\n');
+
+      await api.skills.create(id, content);
+      const updated = await api.skills.list();
+      setAllSkills(updated || []);
+      set('skills', [...form.skills, id]);
+      setShowCreate(false);
+      setNewSkill({ name: '', name_en: '', description: '' });
+    } catch (e) {
+      setCreateError(e.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
   if (loadingSkills) return <p className="text-gray-400 text-sm">טוען מיומנויות...</p>;
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-500">
-        בחר מיומנויות שהסוכן ייטען איתן. אלו מוסיפות ידע מקצועי לניתוח שלו (אופציונלי).
-      </p>
-      <div className="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">
+          בחר מיומנויות שהסוכן ייטען איתן (אופציונלי).
+        </p>
+        <button type="button" onClick={() => { setShowCreate(v => !v); setCreateError(''); }}
+          className="text-xs text-brand hover:underline font-medium shrink-0">
+          {showCreate ? 'ביטול' : '+ מיומנות חדשה'}
+        </button>
+      </div>
+
+      {listError && (
+        <p className="text-xs text-red-500 bg-red-50 rounded px-2 py-1">{listError}</p>
+      )}
+
+      {showCreate && (
+        <div className="border border-brand/30 bg-brand/5 rounded-lg p-3 space-y-2">
+          <p className="text-xs font-semibold text-brand">יצירת מיומנות חדשה</p>
+          <div className="grid grid-cols-2 gap-2">
+            <input className="input text-sm" placeholder="שם (עברית) *"
+              value={newSkill.name}
+              onChange={e => setNewSkill(s => ({ ...s, name: e.target.value }))} />
+            <input className="input text-sm" placeholder="Name (English) *" dir="ltr"
+              value={newSkill.name_en}
+              onChange={e => setNewSkill(s => ({ ...s, name_en: e.target.value }))} />
+          </div>
+          <textarea className="input w-full resize-none h-16 text-sm"
+            placeholder="תיאור קצר של המיומנות (אופציונלי)..."
+            value={newSkill.description}
+            onChange={e => setNewSkill(s => ({ ...s, description: e.target.value }))} />
+          <div className="flex items-center justify-between gap-2">
+            {createError && <p className="text-xs text-red-500 flex-1">{createError}</p>}
+            <button type="button" onClick={handleCreate}
+              disabled={creating || !newSkill.name.trim() || !newSkill.name_en.trim()}
+              className="btn-primary text-xs py-1.5 mr-auto disabled:opacity-40">
+              {creating ? 'שומר...' : 'צור והוסף'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
         {allSkills.map(s => (
           <label key={s.id}
             className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-colors ${

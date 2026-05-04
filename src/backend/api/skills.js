@@ -64,20 +64,25 @@ function loadCustomSkillsFromDisk() {
 
 async function loadCustomSkillsFromFirestore() {
   const db = getDb();
-  if (!db) return null; // signal caller to fall back to disk
-  const snap = await db.collection('custom_skills').get();
-  return snap.docs.map(d => {
-    const data = d.data();
-    return {
-      id:                   d.id,
-      name:                 data.name || d.id,
-      nameEn:               data.nameEn || '',
-      version:              data.version || '1.0',
-      tags:                 data.tags || [],
-      autoTriggerKeywords:  data.autoTriggerKeywords || [],
-      isCustom:             true,
-    };
-  });
+  if (!db) return null;
+  try {
+    const snap = await db.collection('custom_skills').get();
+    return snap.docs.map(d => {
+      const data = d.data();
+      return {
+        id:                   d.id,
+        name:                 data.name || d.id,
+        nameEn:               data.nameEn || '',
+        version:              data.version || '1.0',
+        tags:                 data.tags || [],
+        autoTriggerKeywords:  data.autoTriggerKeywords || [],
+        isCustom:             true,
+      };
+    });
+  } catch (err) {
+    console.error('[Skills] Firestore read error:', err.message);
+    return null;
+  }
 }
 
 // ─── Exported helper for analyze.js ──────────────────────────────────────────

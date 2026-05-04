@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../../services/client.js';
+import { generateHtmlReport } from '../../utils/exportHtml.js';
 
 const TABS = ['תמצית', 'טענות', 'עדויות סותרות', 'חלופות', 'המלצות', 'ישויות', 'מסמך מקורי', 'שקיפות', 'ביקורת'];
 
@@ -278,11 +279,14 @@ export default function Report() {
       .catch(e => setError(e.message));
   }, [sessionId]);
 
-  const exportMd = async () => {
-    const blob = await api.report.exportMd(sessionId);
+  const exportHtml = () => {
+    const html = generateHtmlReport(data);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `report-${sessionId}.md`; a.click();
+    a.href = url;
+    a.download = `avar-report-${sessionId}.html`;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -310,7 +314,7 @@ export default function Report() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={exportMd} className="btn-secondary text-sm">ייצוא .md</button>
+          <button onClick={exportHtml} className="btn-secondary text-sm">ייצוא HTML</button>
           <button onClick={() => navigate('/')} className="btn-secondary text-sm">חזור</button>
         </div>
       </div>

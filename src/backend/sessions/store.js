@@ -171,6 +171,29 @@ function getAllSessions() {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
+// Always reads fresh metadata from Firestore — used by the polling status endpoint
+// so events written by a different Cloud Run instance are always visible.
+// Only reads the lightweight `sessions` doc (not `sessions_content`).
+async function getSessionFreshMeta(id) {
+  if (!db) return sessions.get(id) || null;
+  try {
+    const doc = await db.collection('sessions').doc(id).get();
+    if (!doc.exists) return null;
+    // Merge fresh metadata on top of any content fields already cached in memory
+    const cached = sessions.get(id) || {};
+    const merged = { ...cached, ...doc.data() };
+    // Preserve _stub so getOrFetchSession still fetches sessions_content when needed.
+    // If this instance hasn't loaded content fields yet, mark as stub to force a full
+    // fetch next time — prevents returning metadata-only data as if fully loaded.
+    if (!cached.report && !cached.analysis && !cached.agentOutputs) merged._stub = true;
+    sessions.set(id, merged);
+    return merged;
+  } catch (err) {
+    console.error('[Store] getSessionFreshMeta error:', err.message);
+    return sessions.get(id) || null;
+  }
+}
+
 // Synchronous telemetry update — safe in Node.js single-threaded event loop
 function trackTelemetry(sessionId, { llmCall = false, inputTokens = 0, outputTokens = 0, searchCall = false } = {}) {
   const session = sessions.get(sessionId);
@@ -184,8 +207,17 @@ function trackTelemetry(sessionId, { llmCall = false, inputTokens = 0, outputTok
   };
   sessions.set(sessionId, { ...session, telemetry });
   if (db) {
-    db.collection('sessions').doc(sessionId).update({ telemetry })
-      .catch(() => {});
+    // Use atomic field-level increments to avoid race conditions between concurrent
+    // LLM-call and search-call writes that both overwrite the full telemetry object.
+    const inc = fsAdmin.firestore.FieldValue.increment;
+    const patch = {};
+    if (llmCall)      patch['telemetry.llmCalls']     = inc(1);
+    if (inputTokens)  patch['telemetry.inputTokens']  = inc(inputTokens);
+    if (outputTokens) patch['telemetry.outputTokens'] = inc(outputTokens);
+    if (searchCall)   patch['telemetry.searchCalls']  = inc(1);
+    if (Object.keys(patch).length > 0) {
+      db.collection('sessions').doc(sessionId).update(patch).catch(() => {});
+    }
   }
 }
 
@@ -292,7 +324,7 @@ function unregisterSSEClient(sessionId) {
 }
 
 module.exports = {
-  createSession, getSession, getOrFetchSession, updateSession, getAllSessions,
+  createSession, getSession, getOrFetchSession, getSessionFreshMeta, updateSession, getAllSessions,
   updateAgentStatus, appendEvent, appendAuditEntry, trackTelemetry,
   registerSSEClient, unregisterSSEClient,
 };

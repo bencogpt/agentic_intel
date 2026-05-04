@@ -102,8 +102,11 @@ async function createUser(username, plainPassword, role = 'analyst') {
   const passwordHash = await bcrypt.hash(plainPassword, 12);
   const record = { username, passwordHash, role, createdAt: new Date().toISOString() };
   users.set(username, record);
-  if (db) db.collection('users').doc(username).set(record).catch(() => {});
-  else saveLocal();
+  if (db) {
+    await db.collection('users').doc(username).set(record); // throws on failure — no silent swallow
+  } else {
+    saveLocal();
+  }
   return { username, role, createdAt: record.createdAt };
 }
 
@@ -120,8 +123,11 @@ function getUserByUsername(username) {
 async function deleteUser(username) {
   if (!users.has(username)) throw new Error(`User '${username}' not found`);
   users.delete(username);
-  if (db) db.collection('users').doc(username).delete().catch(() => {});
-  else saveLocal();
+  if (db) {
+    await db.collection('users').doc(username).delete();
+  } else {
+    saveLocal();
+  }
 }
 
 async function updatePassword(username, newPlainPassword) {
@@ -130,8 +136,11 @@ async function updatePassword(username, newPlainPassword) {
   const passwordHash = await bcrypt.hash(newPlainPassword, 12);
   const updated = { ...record, passwordHash, updatedAt: new Date().toISOString() };
   users.set(username, updated);
-  if (db) db.collection('users').doc(username).set(updated).catch(() => {});
-  else saveLocal();
+  if (db) {
+    await db.collection('users').doc(username).set(updated);
+  } else {
+    saveLocal();
+  }
 }
 
 async function verifyPassword(username, plainPassword) {

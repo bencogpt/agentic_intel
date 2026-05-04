@@ -64,7 +64,7 @@ Respond with a single JSON code block. Do not include any text outside the code 
       "evidence": "..."
     }
   ],
-  "suggestedAgents": ["agent-id-1", "agent-id-2"],
+  "suggestedAgents": ["agent-id-1", "agent-id-2", "agent-new-capability"],
   "entities": {
     "persons": [
       { "name": "...", "role": "...", "relevance": "high|medium|low" }
@@ -83,6 +83,12 @@ Respond with a single JSON code block. Do not include any text outside the code 
 ```
 
 Also extract named entities from the document into the `entities` field. Only include entities that are directly relevant to the assessment's subject matter. Use Hebrew names where the document uses Hebrew.
+
+## Available Agents
+The following specialist agents are currently configured in the system:
+{{AVAILABLE_AGENTS}}
+
+For `suggestedAgents`: include agents from the list above that are relevant to this document's topic, AND include 2–3 additional agent types that would add analytical value but are **not** in the list above. Use lowercase hyphenated IDs for new agents (e.g. `agent-nuclear-expert`, `agent-cyber-analyst`). New agent suggestions tell the analyst which capabilities are missing from the system.
 
 ## Document
 {{DOCUMENT}}
