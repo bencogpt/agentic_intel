@@ -8,6 +8,7 @@ import Report from './pages/Report/index.jsx';
 import SkillsManager from './pages/SkillsManager/index.jsx';
 import AgentsManager from './pages/AgentsManager/index.jsx';
 import WorkflowsManager from './pages/WorkflowsManager/index.jsx';
+import SourcesManager from './pages/SourcesManager/index.jsx';
 import UsersManager from './pages/UsersManager/index.jsx';
 import Login from './pages/Login/index.jsx';
 
@@ -29,6 +30,7 @@ function Nav() {
           <NavLink to="/workflows" className={linkClass}>Workflows</NavLink>
           <NavLink to="/skills" className={linkClass}>מיומנויות</NavLink>
           <NavLink to="/agents" className={linkClass}>סוכנים</NavLink>
+          <NavLink to="/sources" className={linkClass}>מקורות</NavLink>
           {user?.role === 'admin' && (
             <NavLink to="/users" className={linkClass}>משתמשים</NavLink>
           )}
@@ -79,6 +81,7 @@ export default function App() {
                 <Route path="/workflows" element={<WorkflowsManager />} />
                 <Route path="/skills" element={<SkillsManager />} />
                 <Route path="/agents" element={<AgentsManager />} />
+                <Route path="/sources" element={<SourcesManager />} />
 
                 {/* Admin only */}
                 <Route element={<RequireAuth role="admin" />}>

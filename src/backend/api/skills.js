@@ -36,6 +36,8 @@ function parseMeta(id, data, isCustom) {
     version:              data.version || '1.0',
     tags:                 data.tags || [],
     autoTriggerKeywords:  data.auto_trigger_keywords || [],
+    domains:              data.domains || [],
+    apiSources:           data.api_sources || [],
     isCustom,
   };
 }
@@ -76,6 +78,8 @@ async function loadCustomSkillsFromFirestore() {
         version:              data.version || '1.0',
         tags:                 data.tags || [],
         autoTriggerKeywords:  data.autoTriggerKeywords || [],
+        domains:              data.domains || [],
+        apiSources:           data.apiSources || [],
         isCustom:             true,
       };
     });
@@ -164,6 +168,8 @@ router.post('/', async (req, res) => {
         version:             data.version || '1.0',
         tags:                data.tags || [],
         autoTriggerKeywords: data.auto_trigger_keywords || [],
+        domains:             data.domains || [],
+        apiSources:          data.api_sources || [],
         createdAt:           new Date().toISOString(),
       });
     } catch (err) {
@@ -193,6 +199,8 @@ router.put('/:skillId', async (req, res) => {
         version:             data.version || '1.0',
         tags:                data.tags || [],
         autoTriggerKeywords: data.auto_trigger_keywords || [],
+        domains:             data.domains || [],
+        apiSources:          data.api_sources || [],
         updatedAt:           new Date().toISOString(),
       }, { merge: true });
     } catch (err) {
@@ -206,5 +214,23 @@ router.put('/:skillId', async (req, res) => {
   res.json({ ok: true });
 });
 
+// Returns { domains, apiSources } merged from a list of skill IDs (for analyze.js)
+async function collectSkillSearchOptions(skillIds) {
+  const domains    = [];
+  const apiSources = [];
+  for (const skillId of skillIds || []) {
+    const raw = await getSkillContent(skillId);
+    if (!raw) continue;
+    const { data } = matter(raw);
+    if (data.domains)     domains.push(...data.domains);
+    if (data.api_sources) apiSources.push(...data.api_sources);
+  }
+  return {
+    domains:    [...new Set(domains)],
+    apiSources: [...new Set(apiSources)],
+  };
+}
+
 module.exports = router;
 module.exports.getSkillContent = getSkillContent;
+module.exports.collectSkillSearchOptions = collectSkillSearchOptions;

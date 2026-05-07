@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../../services/client.js';
 
 // ─── Step definitions ─────────────────────────────────────────────────────────
@@ -15,6 +15,8 @@ const EMPTY_FORM = {
   name: '', name_en: '', description: '', tags: '', keywords: '',
   questions: ['', '', '', '', ''],
   instructions: '', sources: '', examples: '', biases: '',
+  domains: '',        // newline-separated domain list
+  apiSources: [],     // array of source IDs
 };
 
 // ─── Body parsers — convert existing skill .md body into form fields ──────────
@@ -60,6 +62,8 @@ export function skillToForm(skill) {
     sources: parseSources(body),
     examples: parseBodySection(body, 'דוגמאות'),
     biases: parseBodySection(body, 'אזהרות והטיות'),
+    domains:    (skill.domains    || []).join('\n'),
+    apiSources: skill.api_sources || skill.apiSources || [],
   };
 }
 
@@ -67,10 +71,15 @@ export function skillToForm(skill) {
 
 function generateMarkdown(form) {
   const today = new Date().toISOString().split('T')[0];
-  const tags = form.tags.split(',').map(t => t.trim()).filter(Boolean);
-  const keywords = form.keywords.split(',').map(k => k.trim()).filter(Boolean);
-  const questions = form.questions.filter(q => q.trim());
-  const sources = form.sources.split('\n').map(s => s.trim()).filter(Boolean);
+  const tags       = form.tags.split(',').map(t => t.trim()).filter(Boolean);
+  const keywords   = form.keywords.split(',').map(k => k.trim()).filter(Boolean);
+  const questions  = form.questions.filter(q => q.trim());
+  const sources    = form.sources.split('\n').map(s => s.trim()).filter(Boolean);
+  const domains    = (form.domains || '').split('\n').map(d => d.trim()).filter(Boolean);
+  const apiSources = form.apiSources || [];
+
+  const domainsYaml    = domains.length    ? `\ndomains:\n${domains.map(d => `  - ${d}`).join('\n')}` : '';
+  const apiSourcesYaml = apiSources.length ? `\napi_sources:\n${apiSources.map(s => `  - ${s}`).join('\n')}` : '';
 
   return `---
 name: ${form.name}
@@ -80,7 +89,7 @@ author: custom
 created: ${today}
 last_modified: ${today}
 tags: [${tags.join(', ')}]
-auto_trigger_keywords: [${keywords.join(', ')}]
+auto_trigger_keywords: [${keywords.join(', ')}]${domainsYaml}${apiSourcesYaml}
 ---
 
 ## תיאור המיומנות
@@ -182,11 +191,69 @@ function Step3({ form, set }) {
 }
 
 function Step4({ form, set }) {
+  const [availableSources, setAvailableSources] = useState([]);
+
+  useEffect(() => {
+    api.sources.list().then(setAvailableSources).catch(() => {});
+  }, []);
+
+  const toggleApiSource = (id) => {
+    const current = form.apiSources || [];
+    set('apiSources', current.includes(id) ? current.filter(s => s !== id) : [...current, id]);
+  };
+
   return (
-    <Field label="מקורות מועדפים" hint="שורה לכל מקור">
-      <textarea className="input w-full resize-none h-56 font-mono text-sm leading-relaxed"
-        value={form.sources} onChange={e => set('sources', e.target.value)} />
-    </Field>
+    <div className="space-y-5">
+      {/* Domain search targets */}
+      <Field label="דומיינים לחיפוש ממוקד" hint="כשהמיומנות פעילה, הסוכן יחפש רק בדומיינים אלו. שורה לכל דומיין (לדוג׳ isw.pub)">
+        <textarea
+          className="input w-full resize-none h-24 font-mono text-sm leading-relaxed"
+          dir="ltr"
+          placeholder={"isw.pub\nmaxar.com\ntimesofisrael.com"}
+          value={form.domains || ''}
+          onChange={e => set('domains', e.target.value)}
+        />
+      </Field>
+
+      {/* API source references */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">מקורות API לשימוש</label>
+        <p className="text-xs text-gray-400 mb-2">
+          מקורות ה-API שיישאלו בכל חיפוש שהמיומנות מפעילה
+        </p>
+        {availableSources.length === 0 ? (
+          <p className="text-xs text-gray-400 py-3 text-center border border-dashed border-gray-200 rounded-lg">
+            אין מקורות API מוגדרים — <a href="/sources" className="text-brand underline">צור מקור</a>
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {availableSources.map(src => {
+              const selected = (form.apiSources || []).includes(src.id);
+              return (
+                <button
+                  key={src.id}
+                  type="button"
+                  onClick={() => toggleApiSource(src.id)}
+                  className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                    selected
+                      ? 'bg-brand text-white border-brand'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-brand hover:text-brand'
+                  }`}
+                >
+                  {src.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Free-text preferred sources (existing) */}
+      <Field label="מקורות מועדפים (תיאורי)" hint="שורה לכל מקור — לתיעוד בלבד, לא לחיפוש אוטומטי">
+        <textarea className="input w-full resize-none h-28 font-mono text-sm leading-relaxed"
+          value={form.sources} onChange={e => set('sources', e.target.value)} />
+      </Field>
+    </div>
   );
 }
 

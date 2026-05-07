@@ -8,8 +8,9 @@ const {
   appendEvent, appendAuditEntry, registerSSEClient, unregisterSSEClient, trackTelemetry,
 } = require('../sessions/store');
 const { search } = require('../search-backends/web-search');
+const { queryCustomSources } = require('../search-backends/custom-sources');
 const { loadDocument } = require('../storage/documents');
-const { getSkillContent } = require('./skills');
+const { getSkillContent, collectSkillSearchOptions } = require('./skills');
 const { loadAllAgentsWithBody } = require('./agents');
 const { chat, appendAssistant, appendToolResults, resolveModel, DEFAULT_MODEL } = require('../llm/chat');
 
@@ -52,8 +53,9 @@ function formatSearchResults(results) {
 
 // ─── Agentic Tool-Use Loop ────────────────────────────────────────────────────
 
-async function runWithSearch(sessionId, system, userContent, agentLabel, llmConfig) {
+async function runWithSearch(sessionId, system, userContent, agentLabel, llmConfig, searchOptions = {}) {
   const { provider, model } = llmConfig;
+  const { domains = [], apiSources = [] } = searchOptions;
   const messages = [{ role: 'user', content: userContent }];
 
   while (true) {
@@ -93,7 +95,18 @@ async function runWithSearch(sessionId, system, userContent, agentLabel, llmConf
       let results = [];
       let searchError = null;
       try {
-        results = await search(query, lang);
+        // Run Tavily (with skill domains) + custom API sources in parallel
+        const [webResults, customResults] = await Promise.all([
+          search(query, lang, { includeDomains: domains }),
+          queryCustomSources(apiSources, query),
+        ]);
+
+        // Merge and deduplicate by URL
+        const seen = new Set();
+        for (const r of [...webResults, ...customResults]) {
+          if (r.url && !seen.has(r.url)) { seen.add(r.url); results.push(r); }
+        }
+
         appendEvent(sessionId, { type: 'search_results', query, count: results.length, agent: agentLabel });
       } catch (err) {
         searchError = err.message;
@@ -153,6 +166,9 @@ async function runAgent(sessionId, agent, documentText, analysis, llmConfig) {
     return matter(raw).content; // body only (after frontmatter)
   }).filter(Boolean).join('\n\n---\n\n');
 
+  // Collect domain + API source overrides from active skills
+  const searchOptions = await collectSkillSearchOptions(agent.skills || []);
+
   const agentSystem = `${getSystemPrompt()}\n\n## תפקיד הסוכן\n${agent.body}\n\n## ידע מקצועי (מיומנויות)\n${skillsContent}`;
 
   const claimsText = (analysis.keyClaims || [])
@@ -160,7 +176,7 @@ async function runAgent(sessionId, agent, documentText, analysis, llmConfig) {
 
   const userMessage = `# מסמך ההערכה\n\n${documentText}\n\n# טענות מרכזיות שזוהו\n\n${claimsText}\n\nנתח את המסמך לפי תפקידך. חפש מידע עדכני לפני כל טענה עובדתית. כתוב את הניתוח בעברית.`;
 
-  const output = await runWithSearch(sessionId, agentSystem, userMessage, agent.name, llmConfig);
+  const output = await runWithSearch(sessionId, agentSystem, userMessage, agent.name, llmConfig, searchOptions);
 
   updateAgentStatus(sessionId, agent.id, 'complete');
   appendEvent(sessionId, { type: 'agent_complete', agentId: agent.id, agentName: agent.name });

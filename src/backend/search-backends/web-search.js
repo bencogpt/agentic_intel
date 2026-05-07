@@ -15,7 +15,7 @@ function classifySourceTier(url = '') {
   return 2;
 }
 
-async function search(query, lang = 'en') {
+async function search(query, lang = 'en', options = {}) {
   const key = process.env.TAVILY_API_KEY;
   if (!key) throw new Error('TAVILY_API_KEY not set');
 
@@ -23,6 +23,8 @@ async function search(query, lang = 'en') {
   if (!query || typeof query !== 'string' || !query.trim()) {
     throw new Error(`Invalid search query: ${JSON.stringify(query)}`);
   }
+
+  const { includeDomains = [] } = options;
 
   const res = await fetch('https://api.tavily.com/search', {
     method: 'POST',
@@ -34,6 +36,7 @@ async function search(query, lang = 'en') {
       include_answer: false,
       include_raw_content: false,
       max_results: 6,
+      ...(includeDomains.length && { include_domains: includeDomains }),
     }),
   });
 

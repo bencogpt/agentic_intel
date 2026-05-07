@@ -63,6 +63,12 @@ export const api = {
     create: (id, content) => request('POST', '/skills', { id, content }),
     update: (id, content) => request('PUT', `/skills/${id}`, { content }),
   },
+  sources: {
+    list:   ()         => request('GET', '/sources'),
+    create: (id, data) => request('POST', '/sources', { id, ...data }),
+    update: (id, data) => request('PUT', `/sources/${id}`, data),
+    remove: (id)       => request('DELETE', `/sources/${id}`),
+  },
   sessions: {
     list: () => request('GET', '/sessions'),
   },

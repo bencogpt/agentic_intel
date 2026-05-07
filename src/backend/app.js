@@ -37,6 +37,7 @@ function createApp() {
   app.use('/api/sessions',  require('./api/sessions'));
   app.use('/api/chat',      require('./api/chat'));
   app.use('/api/workflows', require('./api/workflows'));
+  app.use('/api/sources',  require('./api/sources'));
   app.use('/api/users',     require('./api/users'));
 
   // Model registry — returns available LLM models for the frontend selector
