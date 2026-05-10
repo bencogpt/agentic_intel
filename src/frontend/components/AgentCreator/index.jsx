@@ -323,7 +323,7 @@ function Step3({ form, set }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+      <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto pr-1">
         {allSkills.map(s => (
           <label key={s.id}
             className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-colors ${
