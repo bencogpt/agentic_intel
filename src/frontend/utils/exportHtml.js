@@ -272,7 +272,7 @@ function buildDocument(documentText) {
   return `<pre style="white-space:pre-wrap;font-family:'Segoe UI',sans-serif;font-size:0.85em;line-height:1.7;color:#374151;direction:ltr;text-align:left">${esc(documentText)}</pre>`;
 }
 
-function buildTransparency(report, telemetry, content) {
+function buildTransparency(report, telemetry, content, agentOutputs) {
   let html = '';
 
   html += `<div style="font-size:0.9em;color:#374151;margin-bottom:16px">`;
@@ -280,6 +280,33 @@ function buildTransparency(report, telemetry, content) {
   html += `<p style="margin-top:6px"><strong>מיומנויות שהופעלו:</strong> ${esc(report?.skillsActivated?.join(', ') || '—')}</p>`;
   html += `<p style="margin-top:6px"><strong>זמן הפקה:</strong> ${esc(new Date(report?.generatedAt).toLocaleString('he-IL'))}</p>`;
   html += `</div>`;
+
+  const agentEntries = agentOutputs ? Object.values(agentOutputs) : [];
+  if (agentEntries.length > 0) {
+    html += `<div style="margin-bottom:16px">`;
+    html += `<h3 style="font-size:0.9em;font-weight:700;color:#374151;margin-bottom:10px">פלט סוכנים</h3>`;
+    for (const agent of agentEntries) {
+      html += `<details style="border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;overflow:hidden">`;
+      html += `<summary style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f9fafb;cursor:pointer;list-style:none;user-select:none">`;
+      html += `<div style="display:flex;gap:6px;flex-wrap:wrap">`;
+      for (const s of (agent.skills || [])) {
+        html += `<span style="font-size:0.75em;padding:2px 8px;border-radius:4px;background:#eff6ff;color:${BRAND};font-weight:600">${esc(s)}</span>`;
+      }
+      if (!agent.skills?.length) {
+        html += `<span style="font-size:0.75em;color:#9ca3af">ללא מיומנויות</span>`;
+      }
+      html += `</div>`;
+      html += `<span style="font-size:0.9em;font-weight:600;color:#111827;white-space:nowrap">${esc(agent.agentName)}</span>`;
+      html += `</summary>`;
+      html += `<div style="border-top:1px solid #f3f4f6;background:white;padding:16px;direction:rtl">`;
+      html += `<pre style="white-space:pre-wrap;font-family:'Segoe UI',sans-serif;font-size:0.85em;line-height:1.7;color:#374151">${esc(agent.output || '')}</pre>`;
+      if (agent.completedAt) {
+        html += `<p style="font-size:0.75em;color:#9ca3af;margin-top:10px">הושלם: ${esc(new Date(agent.completedAt).toLocaleString('he-IL'))}</p>`;
+      }
+      html += `</div></details>`;
+    }
+    html += `</div>`;
+  }
 
   if (telemetry) {
     html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">`;
@@ -375,7 +402,7 @@ function buildAudit(searchAudit) {
 // ─── Main template ────────────────────────────────────────────────────────────
 
 export function generateHtmlReport(data) {
-  const { report, analysis, documentText, searchAudit, telemetry, title, generatedAt } = data;
+  const { report, analysis, documentText, searchAudit, telemetry, title, generatedAt, agentOutputs } = data;
   const content = report?.content || '';
 
   const sections = [
@@ -386,7 +413,7 @@ export function generateHtmlReport(data) {
     { title: 'המלצות',          html: buildMdSection(content, 'המלצות', 'לא נמצאו המלצות בדו״ח') },
     { title: 'ישויות',          html: buildEntities(analysis?.entities) },
     { title: 'מסמך מקורי',      html: buildDocument(documentText) },
-    { title: 'שקיפות',          html: buildTransparency(report, telemetry, content) },
+    { title: 'שקיפות',          html: buildTransparency(report, telemetry, content, agentOutputs) },
     { title: 'ביקורת חיפוש',    html: buildAudit(searchAudit) },
   ];
 

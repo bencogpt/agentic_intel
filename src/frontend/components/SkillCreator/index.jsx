@@ -309,9 +309,9 @@ export default function SkillCreator({ mode = 'create', skillId, initialForm, on
   const saveLabel = mode === 'edit' ? 'שמור שינויים' : mode === 'fork' ? 'שמור כעותק מותאם' : 'שמור מיומנות';
 
   const canNext = () => {
-    if (step === 1) return form.name.trim() && form.name_en.trim() && form.description.trim();
-    if (step === 2) return form.questions.filter(q => q.trim()).length >= 2;
-    if (step === 3) return form.instructions.trim();
+    if (step === 1) return form.name.trim() && form.name_en.trim() && (mode === 'edit' || form.description.trim());
+    if (step === 2) return mode === 'edit' || form.questions.filter(q => q.trim()).length >= 2;
+    if (step === 3) return mode === 'edit' || form.instructions.trim();
     return true;
   };
 

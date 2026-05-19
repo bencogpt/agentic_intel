@@ -528,6 +528,13 @@ export default function Report() {
               <p><strong>מיומנויות שהופעלו:</strong> {report?.skillsActivated?.join(', ') || '—'}</p>
               <p><strong>זמן הפקה:</strong> {new Date(report?.generatedAt).toLocaleString('he-IL')}</p>
 
+              {data.agentOutputs && Object.keys(data.agentOutputs).length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <h3 className="font-semibold text-gray-700 mb-3">פלט סוכנים</h3>
+                  <AgentOutputsPanel outputs={data.agentOutputs} />
+                </div>
+              )}
+
               {data.telemetry && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <h3 className="font-semibold text-gray-700 mb-3">טלמטריה</h3>
@@ -564,6 +571,50 @@ export default function Report() {
 
       {/* Chat panel */}
       <ChatPanel sessionId={sessionId} />
+    </div>
+  );
+}
+
+function AgentOutputsPanel({ outputs }) {
+  const [expanded, setExpanded] = useState({});
+  const toggle = id => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+  const entries = Object.values(outputs);
+
+  return (
+    <div className="space-y-3">
+      {entries.map(agent => (
+        <div key={agent.agentId} className="border border-gray-200 rounded-lg overflow-hidden">
+          <button
+            onClick={() => toggle(agent.agentId)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-right"
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              {(agent.skills || []).map(s => (
+                <span key={s} className="text-xs px-2 py-0.5 rounded bg-brand/10 text-brand font-medium">{s}</span>
+              ))}
+              {(!agent.skills || agent.skills.length === 0) && (
+                <span className="text-xs text-gray-400">ללא מיומנויות</span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-gray-800 text-sm">{agent.agentName}</span>
+              <svg className={`w-4 h-4 text-gray-400 transition-transform ${expanded[agent.agentId] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </button>
+          {expanded[agent.agentId] && (
+            <div className="px-4 py-3 bg-white border-t border-gray-100">
+              <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-sans">
+                {agent.output}
+              </pre>
+              {agent.completedAt && (
+                <p className="text-xs text-gray-400 mt-3">
+                  הושלם: {new Date(agent.completedAt).toLocaleString('he-IL')}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

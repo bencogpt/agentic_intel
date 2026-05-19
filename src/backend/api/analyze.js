@@ -181,7 +181,7 @@ async function runAgent(sessionId, agent, documentText, analysis, llmConfig) {
   updateAgentStatus(sessionId, agent.id, 'complete');
   appendEvent(sessionId, { type: 'agent_complete', agentId: agent.id, agentName: agent.name });
 
-  return { agentId: agent.id, agentName: agent.name, output, completedAt: new Date().toISOString(), missingSkills };
+  return { agentId: agent.id, agentName: agent.name, skills: agent.skills || [], output, completedAt: new Date().toISOString(), missingSkills };
 }
 
 async function dispatchAgents(sessionId, agents, documentText, analysis, llmConfig) {

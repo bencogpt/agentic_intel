@@ -30,8 +30,17 @@ export default function SkillsManager() {
   const openEdit = async (skill) => {
     const full = await api.skills.get(skill.id);
     const initialForm = skillToForm(full);
-    const mode = skill.isCustom ? 'edit' : 'fork';
-    setEditor({ mode, skillId: skill.id, initialForm });
+    setEditor({ mode: 'edit', skillId: skill.id, initialForm });
+  };
+
+  const handleDelete = async (skill) => {
+    if (!window.confirm(`למחוק את המיומנות "${skill.name}"?`)) return;
+    try {
+      await api.skills.remove(skill.id);
+      load();
+    } catch (e) {
+      setImportMsg({ type: 'err', text: e.message });
+    }
   };
 
   const handleCreated = () => {
@@ -49,8 +58,14 @@ export default function SkillsManager() {
       const nameEn = extractFrontmatterField(content, 'name_en');
       if (!nameEn) throw new Error('שדה name_en חסר בקובץ — לא ניתן לייבא');
       const id = slugifyNameEn(nameEn);
-      await api.skills.create(id, content);
-      setImportMsg({ type: 'ok', text: `מיומנות "${nameEn}" יובאה בהצלחה` });
+      const existing = skills.find(s => s.id === id);
+      if (existing) {
+        await api.skills.update(id, content);
+        setImportMsg({ type: 'ok', text: `מיומנות "${nameEn}" עודכנה בהצלחה` });
+      } else {
+        await api.skills.create(id, content);
+        setImportMsg({ type: 'ok', text: `מיומנות "${nameEn}" יובאה בהצלחה` });
+      }
       load();
     } catch (err) {
       setImportMsg({ type: 'err', text: err.message });
@@ -99,15 +114,15 @@ export default function SkillsManager() {
       )}
 
       <div className="mt-6">
-        <Section title="מיומנויות ברירת מחדל" skills={defaults} onEdit={openEdit} />
-        <Section title="מיומנויות מותאמות" skills={custom} onEdit={openEdit}
+        <Section title="מיומנויות ברירת מחדל" skills={defaults} onEdit={openEdit} onDelete={handleDelete} />
+        <Section title="מיומנויות מותאמות" skills={custom} onEdit={openEdit} onDelete={handleDelete}
           empty="אין מיומנויות מותאמות עדיין — צור מיומנות ראשונה" />
       </div>
     </div>
   );
 }
 
-function Section({ title, skills, onEdit, empty }) {
+function Section({ title, skills, onEdit, onDelete, empty }) {
   return (
     <div className="mb-8">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">{title}</h2>
@@ -131,12 +146,14 @@ function Section({ title, skills, onEdit, empty }) {
                     ? <span className="badge bg-brand/10 text-brand">מותאם אישית</span>
                     : <span className="badge bg-gray-100 text-gray-500">ברירת מחדל</span>
                   }
-                  <button
-                    onClick={() => onEdit(s)}
-                    className="text-xs text-brand hover:underline font-medium"
-                  >
-                    {s.isCustom ? 'ערוך' : 'ערוך עותק'}
-                  </button>
+                  <div className="flex gap-3">
+                    <button onClick={() => onEdit(s)} className="text-xs text-brand hover:underline font-medium">
+                      ערוך
+                    </button>
+                    <button onClick={() => onDelete(s)} className="text-xs text-red-400 hover:underline font-medium">
+                      מחק
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

@@ -121,7 +121,9 @@ router.get('/', async (_req, res) => {
   try {
     const defaults = loadDefaultSkillsFromDisk();
     const custom   = (await loadCustomSkillsFromFirestore()) ?? loadCustomSkillsFromDisk();
-    res.json([...defaults, ...custom]);
+    // Custom overrides default when same ID (edited default skill)
+    const customIds = new Set(custom.map(s => s.id));
+    res.json([...defaults.filter(s => !customIds.has(s.id)), ...custom]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -129,11 +131,7 @@ router.get('/', async (_req, res) => {
 
 router.get('/:skillId', async (req, res) => {
   const { skillId } = req.params;
-  const defaultPath = path.join(SKILLS_DIR, 'default', `${skillId}.md`);
-  if (fs.existsSync(defaultPath)) {
-    const { data, content } = matter(fs.readFileSync(defaultPath, 'utf-8'));
-    return res.json({ ...data, id: skillId, body: content, isCustom: false });
-  }
+  // Check Firestore first — custom/edited version takes priority over bundled default
   const db = getDb();
   if (db) {
     try {
@@ -150,6 +148,11 @@ router.get('/:skillId', async (req, res) => {
   if (fs.existsSync(customPath)) {
     const { data, content } = matter(fs.readFileSync(customPath, 'utf-8'));
     return res.json({ ...data, id: skillId, body: content, isCustom: true });
+  }
+  const defaultPath = path.join(SKILLS_DIR, 'default', `${skillId}.md`);
+  if (fs.existsSync(defaultPath)) {
+    const { data, content } = matter(fs.readFileSync(defaultPath, 'utf-8'));
+    return res.json({ ...data, id: skillId, body: content, isCustom: false });
   }
   res.status(404).json({ error: 'Skill not found' });
 });
@@ -189,8 +192,6 @@ router.put('/:skillId', async (req, res) => {
   const db = getDb();
   if (db) {
     try {
-      const doc = await db.collection('custom_skills').doc(skillId).get();
-      if (!doc.exists) return res.status(403).json({ error: 'Only custom skills can be edited' });
       const { data } = matter(content);
       await db.collection('custom_skills').doc(skillId).set({
         content,
@@ -208,10 +209,25 @@ router.put('/:skillId', async (req, res) => {
     }
   } else {
     const p = path.join(SKILLS_DIR, 'custom', `${skillId}.md`);
-    if (!fs.existsSync(p)) return res.status(403).json({ error: 'Only custom skills can be edited' });
     fs.writeFileSync(p, content, 'utf-8');
   }
   res.json({ ok: true });
+});
+
+router.delete('/:skillId', async (req, res) => {
+  const { skillId } = req.params;
+  const db = getDb();
+  try {
+    if (db) {
+      await db.collection('custom_skills').doc(skillId).delete();
+    } else {
+      const p = path.join(SKILLS_DIR, 'custom', `${skillId}.md`);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Returns { domains, apiSources } merged from a list of skill IDs (for analyze.js)

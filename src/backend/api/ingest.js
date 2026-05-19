@@ -12,7 +12,9 @@ const upload = multer({
   fileFilter: (_req, file, cb) => {
     const allowed = ['text/plain', 'text/markdown', 'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (allowed.includes(file.mimetype)) cb(null, true);
+    const ext = (file.originalname || '').toLowerCase();
+    const byExt = ext.endsWith('.pdf') || ext.endsWith('.txt') || ext.endsWith('.md') || ext.endsWith('.docx');
+    if (allowed.includes(file.mimetype) || byExt) cb(null, true);
     else cb(new Error(`Unsupported file type: ${file.mimetype}`));
   },
 });
@@ -60,8 +62,9 @@ router.post('/file', upload.single('document'), async (req, res) => {
     const mammoth = require('mammoth');
     const result = await mammoth.extractRawText({ buffer });
     text = result.value;
-  } else if (mimetype === 'application/pdf') {
-    const pdfParse = require('pdf-parse');
+  } else if (mimetype === 'application/pdf' || originalname?.toLowerCase().endsWith('.pdf')) {
+    // Use lib path to avoid pdf-parse test-file loading issue in Firebase Functions
+    const pdfParse = require('pdf-parse/lib/pdf-parse.js');
     const data = await pdfParse(buffer);
     text = data.text;
   }
