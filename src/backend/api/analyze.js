@@ -41,7 +41,29 @@ function extractJson(text) {
   const end = text.lastIndexOf('}');
   if (start !== -1 && end > start) return text.slice(start, end + 1);
 
+  // Return from first { to end of text (may be truncated — repairJson will close it)
+  if (start !== -1) return text.slice(start);
   return text.trim();
+}
+
+// Close any unclosed braces/brackets in a truncated JSON string
+function repairJson(text) {
+  const stack = [];
+  let inStr = false;
+  let esc = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (esc) { esc = false; continue; }
+    if (c === '\\' && inStr) { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '{') stack.push('}');
+    else if (c === '[') stack.push(']');
+    else if ((c === '}' || c === ']') && stack.length) stack.pop();
+  }
+  let result = inStr ? text + '"' : text;  // close unterminated string
+  result = result.replace(/,\s*$/, '');    // strip trailing comma before close
+  return result + stack.reverse().join('');
 }
 
 function formatSearchResults(results) {
@@ -133,11 +155,18 @@ async function analyzeDocument(sessionId, documentText, llmConfig, availableAgen
     .replace('{{DOCUMENT}}', documentText);
   const text = await runWithSearch(sessionId, getSystemPrompt(), userMessage, 'מנתח', llmConfig);
   const raw = extractJson(text);
+  // First attempt — clean parse
+  try { return JSON.parse(raw); } catch (_) {}
+  // Second attempt — repair truncated JSON (hit max_tokens mid-output)
   try {
-    return JSON.parse(raw);
+    const repaired = repairJson(raw);
+    const result = JSON.parse(repaired);
+    appendEvent(sessionId, { type: 'warning', message: 'ניתוח JSON תוקן אוטומטית — ייתכן שחלק מהנתונים חסרים' });
+    console.warn('[ANALYZE] JSON repaired from truncated response');
+    return result;
   } catch (parseErr) {
-    console.error(`[ANALYZE] JSON parse failed: ${parseErr.message}`);
-    console.error(`[ANALYZE] Raw response (first 500 chars): ${raw.slice(0, 500)}`);
+    console.error(`[ANALYZE] JSON parse failed after repair: ${parseErr.message}`);
+    console.error(`[ANALYZE] Raw (first 500): ${raw.slice(0, 500)}`);
     appendEvent(sessionId, { type: 'warning', message: `לא ניתן לנתח JSON: ${parseErr.message}` });
     return {
       keyClaims: [{ id: 'claim-1', text: 'שגיאה בניתוח — ראה לוג שרת', confidence: 'low', sourceCount: 0,

@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../../services/client.js';
 import { generateHtmlReport } from '../../utils/exportHtml.js';
 
-const TABS = ['תמצית', 'טענות', 'עדויות סותרות', 'חלופות', 'המלצות', 'ישויות', 'מסמך מקורי', 'שקיפות', 'ביקורת'];
+const TABS = ['תמצית', 'טענות', 'עדויות סותרות', 'חלופות', 'המלצות', 'ניתוח סוכנים', 'ישויות', 'מסמך מקורי', 'שקיפות', 'ביקורת'];
 
 function fmtTokens(n) {
   if (!n) return '0';
@@ -502,9 +502,18 @@ export default function Report() {
           {tab === 3 && <SectionTab content={sec('חלופות מדורגות') || sec('חלופות')} empty="לא נמצאו חלופות מדורגות בדו״ח" />}
           {tab === 4 && <SectionTab content={sec('המלצות')} empty="לא נמצאו המלצות בדו״ח" />}
 
-          {tab === 5 && <EntitiesTab entities={analysis?.entities} />}
+          {tab === 5 && (
+            <div>
+              {data.agentOutputs && Object.keys(data.agentOutputs).length > 0
+                ? <AgentOutputsPanel outputs={data.agentOutputs} />
+                : <p className="text-gray-400 text-sm text-center py-8">אין נתוני סוכנים לתיק זה</p>
+              }
+            </div>
+          )}
 
-          {tab === 6 && (
+          {tab === 6 && <EntitiesTab entities={analysis?.entities} />}
+
+          {tab === 7 && (
             <div>
               {data.documentText ? (
                 <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-sans">
@@ -520,20 +529,13 @@ export default function Report() {
             </div>
           )}
 
-          {tab === 8 && <AuditTab audit={data.searchAudit} />}
+          {tab === 9 && <AuditTab audit={data.searchAudit} />}
 
-          {tab === 7 && (
+          {tab === 8 && (
             <div className="text-sm text-gray-700 space-y-2">
               <p><strong>סוכנים שהופעלו:</strong> {report?.agentsActivated?.join(', ') || '—'}</p>
               <p><strong>מיומנויות שהופעלו:</strong> {report?.skillsActivated?.join(', ') || '—'}</p>
               <p><strong>זמן הפקה:</strong> {new Date(report?.generatedAt).toLocaleString('he-IL')}</p>
-
-              {data.agentOutputs && Object.keys(data.agentOutputs).length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h3 className="font-semibold text-gray-700 mb-3">פלט סוכנים</h3>
-                  <AgentOutputsPanel outputs={data.agentOutputs} />
-                </div>
-              )}
 
               {data.telemetry && (
                 <div className="mt-4 pt-4 border-t border-gray-100">

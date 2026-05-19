@@ -65,7 +65,7 @@ const WEB_SEARCH_TOOL_COHERE = {
 async function chatAnthropic(model, system, messages) {
   const response = await getAnthropic().messages.create({
     model,
-    max_tokens: 8192,
+    max_tokens: 16384,
     system,
     tools: [WEB_SEARCH_TOOL_ANTHROPIC],
     messages,
@@ -98,6 +98,7 @@ async function chatCohere(model, system, messages) {
   const hasPriorToolResults = messages.some(m => m.role === 'tool');
   const response = await getCohere().v2.chat({
     model,
+    maxTokens: 16384,
     toolChoice: hasPriorToolResults ? undefined : 'REQUIRED',
     tools: [WEB_SEARCH_TOOL_COHERE],
     messages: cohereMessages,

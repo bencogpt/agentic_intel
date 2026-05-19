@@ -55,18 +55,28 @@ router.post('/file', upload.single('document'), async (req, res) => {
 
   let text = '';
   const { mimetype, buffer, originalname } = req.file;
+  const nameLower = (originalname || '').toLowerCase();
 
-  if (mimetype === 'text/plain' || mimetype === 'text/markdown') {
-    text = buffer.toString('utf-8');
-  } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    const mammoth = require('mammoth');
-    const result = await mammoth.extractRawText({ buffer });
-    text = result.value;
-  } else if (mimetype === 'application/pdf' || originalname?.toLowerCase().endsWith('.pdf')) {
-    // Use lib path to avoid pdf-parse test-file loading issue in Firebase Functions
-    const pdfParse = require('pdf-parse/lib/pdf-parse.js');
-    const data = await pdfParse(buffer);
-    text = data.text;
+  try {
+    if (mimetype === 'text/plain' || mimetype === 'text/markdown' ||
+        nameLower.endsWith('.txt') || nameLower.endsWith('.md')) {
+      text = buffer.toString('utf-8');
+    } else if (
+      mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      nameLower.endsWith('.docx')
+    ) {
+      const mammoth = require('mammoth');
+      const result = await mammoth.extractRawText({ buffer });
+      text = result.value;
+    } else if (mimetype === 'application/pdf' || nameLower.endsWith('.pdf')) {
+      // Use lib path to avoid pdf-parse test-file loading issue in Firebase Functions
+      const pdfParse = require('pdf-parse/lib/pdf-parse.js');
+      const data = await pdfParse(buffer);
+      text = data.text;
+    }
+  } catch (parseErr) {
+    console.error('[Ingest] File parse error:', parseErr.message);
+    return res.status(422).json({ error: `שגיאה בפרסור הקובץ: ${parseErr.message}` });
   }
 
   const trimmed = text.trim();
@@ -85,6 +95,12 @@ router.post('/file', upload.single('document'), async (req, res) => {
     .then(path => updateSession(sessionId, { documentPath: path }))
     .catch(err  => console.error('[Ingest] saveDocument failed:', err.message));
   res.json({ sessionId, language, wordCount });
+});
+
+// Express error handler — catches multer errors (wrong file type, size limit)
+router.use((err, _req, res, _next) => {
+  console.error('[Ingest] Upload error:', err.message);
+  res.status(400).json({ error: err.message });
 });
 
 module.exports = router;
