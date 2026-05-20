@@ -3,7 +3,13 @@ import { getToken, clearToken } from './auth.js';
 
 const BASE = '/api';
 
-async function request(method, path, body, isFormData = false) {
+// Firebase Hosting rewrites do not support multipart/form-data — file uploads
+// must call the Cloud Run service URL directly, bypassing the Hosting proxy.
+const DIRECT_BASE = import.meta.env.VITE_CLOUD_RUN_URL
+  ? `${import.meta.env.VITE_CLOUD_RUN_URL}/api`
+  : '/api';
+
+async function _fetch(base, method, path, body, isFormData = false) {
   const opts = { method, headers: {} };
 
   const token = getToken();
@@ -17,7 +23,7 @@ async function request(method, path, body, isFormData = false) {
       opts.body = JSON.stringify(body);
     }
   }
-  const res = await fetch(`${BASE}${path}`, opts);
+  const res = await fetch(`${base}${path}`, opts);
   if (res.status === 401) {
     clearToken();
     window.location.href = '/login';
@@ -28,13 +34,16 @@ async function request(method, path, body, isFormData = false) {
   return data;
 }
 
+const request = (method, path, body, isFormData) => _fetch(BASE, method, path, body, isFormData);
+const directRequest = (method, path, body, isFormData) => _fetch(DIRECT_BASE, method, path, body, isFormData);
+
 export const api = {
   ingest: {
     text: (text, title) => request('POST', '/ingest/text', { text, title }),
     file: (file) => {
       const fd = new FormData();
       fd.append('document', file);
-      return request('POST', '/ingest/file', fd, true);
+      return directRequest('POST', '/ingest/file', fd, true);
     },
   },
   analyze: {
