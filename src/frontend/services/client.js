@@ -1,15 +1,14 @@
 // api/client.js — Typed fetch wrapper for AVAR backend
 import { getToken, clearToken } from './auth.js';
 
-const BASE = '/api';
-
-// Firebase Hosting rewrites do not support multipart/form-data — file uploads
-// must call the Cloud Run service URL directly, bypassing the Hosting proxy.
-const DIRECT_BASE = import.meta.env.VITE_CLOUD_RUN_URL
+// In production VITE_CLOUD_RUN_URL is set at build time — all calls go directly
+// to Cloud Run, bypassing Firebase Hosting (which doesn't support multipart uploads).
+// In local dev the Vite proxy handles /api → localhost:3001.
+const BASE = import.meta.env.VITE_CLOUD_RUN_URL
   ? `${import.meta.env.VITE_CLOUD_RUN_URL}/api`
   : '/api';
 
-async function _fetch(base, method, path, body, isFormData = false) {
+async function request(method, path, body, isFormData = false) {
   const opts = { method, headers: {} };
 
   const token = getToken();
@@ -23,7 +22,7 @@ async function _fetch(base, method, path, body, isFormData = false) {
       opts.body = JSON.stringify(body);
     }
   }
-  const res = await fetch(`${base}${path}`, opts);
+  const res = await fetch(`${BASE}${path}`, opts);
   if (res.status === 401) {
     clearToken();
     window.location.href = '/login';
@@ -34,8 +33,7 @@ async function _fetch(base, method, path, body, isFormData = false) {
   return data;
 }
 
-const request = (method, path, body, isFormData) => _fetch(BASE, method, path, body, isFormData);
-const directRequest = (method, path, body, isFormData) => _fetch(DIRECT_BASE, method, path, body, isFormData);
+const directRequest = request; // kept for call-site compatibility
 
 export const api = {
   ingest: {

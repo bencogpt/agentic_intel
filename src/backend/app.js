@@ -11,12 +11,14 @@ function createApp() {
   require('./users/store');
 
   const allowedOrigins = process.env.FRONTEND_URL
-    ? [process.env.FRONTEND_URL]
+    ? process.env.FRONTEND_URL.split(',').map(s => s.trim())
     : [
         'http://localhost:5173',
         'http://localhost:5174',
         'https://avar-3dd66.web.app',
         'https://avar-3dd66.firebaseapp.com',
+        'https://avaraiapp.web.app',
+        'https://avaraiapp.firebaseapp.com',
       ];
 
   app.use(cors({ origin: allowedOrigins }));

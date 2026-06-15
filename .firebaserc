@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "avar-3dd66"
+    "default": "avar-3dd66",
+    "avaraiapp": "avaraiapp"
   }
 }
