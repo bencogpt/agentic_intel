@@ -22,6 +22,7 @@ const PROMPTS_DIR = path.resolve(__dirname, '../prompts');
 const rawSystemPrompt = fs.readFileSync(path.join(PROMPTS_DIR, 'system-prompt.md'), 'utf-8');
 const analysisPromptTemplate = fs.readFileSync(path.join(PROMPTS_DIR, 'analysis-prompt.md'), 'utf-8');
 const synthesisPromptTemplate = fs.readFileSync(path.join(PROMPTS_DIR, 'synthesis-prompt.md'), 'utf-8');
+const strategicPromptTemplate = fs.readFileSync(path.join(PROMPTS_DIR, 'strategic-prompt.md'), 'utf-8');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -259,6 +260,31 @@ async function synthesize(sessionId, documentText, analysis, agentOutputs, agent
   };
 }
 
+// Step 6 — Strategic point of view: big-picture stress-test through 3 strategic-failure lenses
+// (הפתעה אסטרטגית / הטעיה אסטרטגית / שכרון כוח). Additive step — caller wraps in try/catch.
+async function analyzeStrategicView(sessionId, documentText, analysis, report, llmConfig) {
+  appendEvent(sessionId, { type: 'step', step: 'STRATEGIC', message: 'בוחן ראייה אסטרטגית...' });
+
+  const claimsText = (analysis.keyClaims || [])
+    .map((c, i) => `${i + 1}. ${c.text}`).join('\n');
+  const assumptionsText = (analysis.assumptions || [])
+    .map((a, i) => `${i + 1}. ${a.text}`).join('\n');
+
+  const userMessage = strategicPromptTemplate
+    .replace('{{ANALYSIS_SUMMARY}}', `טענות מרכזיות:\n${claimsText}\n\nהנחות:\n${assumptionsText}`)
+    .replace('{{REPORT_SUMMARY}}', (report?.content || '').substring(0, 1500))
+    .replace('{{DOCUMENT}}', documentText);
+
+  const text = await runWithSearch(sessionId, getSystemPrompt(), userMessage, 'אסטרטג', llmConfig);
+  const raw = extractJson(text);
+  // First attempt — clean parse; second attempt — repair truncated JSON (same as ANALYZE step)
+  try {
+    return { ...JSON.parse(raw), generatedAt: new Date().toISOString() };
+  } catch (_) {
+    return { ...JSON.parse(repairJson(raw)), generatedAt: new Date().toISOString() };
+  }
+}
+
 // ─── Background Runner ────────────────────────────────────────────────────────
 
 async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus, modelId) {
@@ -354,8 +380,18 @@ async function runAnalysis(sessionId, requestedAgentIds, synthesisFocus, modelId
     updateSession(sessionId, { status: 'synthesizing', currentStep: 'SYNTHESIZE' });
     const report = await synthesize(sessionId, documentText, analysis, agentOutputs, selectedAgents, synthesisFocus, llmConfig);
 
+    // Step 6 — Strategic point of view (additive; must not break the report)
+    // Runs before marking complete because the report page fetches once on completion.
+    let strategicView = null;
+    try {
+      strategicView = await analyzeStrategicView(sessionId, documentText, analysis, report, llmConfig);
+    } catch (err) {
+      console.error(`Strategic view failed [${sessionId}]:`, err.message);
+      appendEvent(sessionId, { type: 'warning', message: 'ניתוח ראייה אסטרטגית נכשל — הדו"ח נותר תקין' });
+    }
+
     appendEvent(sessionId, { type: 'complete', message: 'הדו"ח הושלם' });
-    updateSession(sessionId, { status: 'complete', report, completedAt: new Date().toISOString() });
+    updateSession(sessionId, { status: 'complete', report, strategicView, completedAt: new Date().toISOString() });
   } catch (err) {
     console.error(`Analysis failed [${sessionId}]:`, err.message);
     appendEvent(sessionId, { type: 'error', message: err.message });

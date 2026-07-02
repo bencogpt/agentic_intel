@@ -16,7 +16,7 @@ const sseUnsubscribers = new Map(); // Firebase mode: sessionId → Firestore un
 // Fields stored in GCS / local file — never written to Firestore
 const STORAGE_FIELDS = new Set(['documentText']);
 // Fields stored in sessions_content/{id} — heavy content that could exceed 1MB with metadata
-const CONTENT_FIELDS = new Set(['report', 'analysis', 'agentOutputs']);
+const CONTENT_FIELDS = new Set(['report', 'analysis', 'agentOutputs', 'strategicView']);
 
 // ─── Firestore (Firebase mode) ────────────────────────────────────────────────
 

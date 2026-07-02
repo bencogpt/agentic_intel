@@ -22,9 +22,10 @@ router.get('/:sessionId', async (req, res) => {
     telemetry:    session.telemetry || null,
     suggestions:  session.suggestions || null,
     searchAudit:  session.searchAudit || [],
-    report:       session.report,
-    analysis:     session.analysis,
-    agentOutputs: session.agentOutputs,
+    report:        session.report,
+    analysis:      session.analysis,
+    agentOutputs:  session.agentOutputs,
+    strategicView: session.strategicView || null,
   });
 });
 

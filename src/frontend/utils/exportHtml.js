@@ -265,6 +265,65 @@ function buildEntities(entities) {
   return html;
 }
 
+function buildStrategicView(view) {
+  if (!view || !view.lenses?.length) {
+    return '<p style="color:#9ca3af">לא נבחנה ראייה אסטרטגית עבור הערכה זו.</p>';
+  }
+
+  const likLabel = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
+  const likColor = { high: '#fee2e2;color:#b91c1c', medium: '#fef9c3;color:#a16207', low: '#dcfce7;color:#15803d' };
+  const accent   = { high: '#fecaca', medium: '#fde68a', low: '#bbf7d0' };
+
+  let html = '';
+  if (view.bigPicture) {
+    html += `<div style="border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;padding:12px 16px;margin-bottom:16px">`;
+    html += `<p style="font-size:0.78em;font-weight:600;color:#1d4ed8;margin-bottom:4px">התמונה הגדולה</p>`;
+    html += `<p style="font-size:0.9em;color:#1f2937;line-height:1.6">${esc(view.bigPicture)}</p></div>`;
+  }
+
+  for (const lens of view.lenses) {
+    const lik = lens.likelihood;
+    html += `<div style="border:1px solid ${accent[lik] || '#e5e7eb'};border-radius:10px;overflow:hidden;margin-bottom:14px">`;
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px">`;
+    html += `<span style="font-size:0.95em;font-weight:700;color:#111827">${esc(lens.title || '')}</span>`;
+    html += `<span style="font-size:0.75em;font-weight:500;border-radius:6px;padding:2px 8px;background:${likColor[lik] || '#f3f4f6;color:#6b7280'}">סבירות: ${esc(likLabel[lik] || lik || '—')}</span>`;
+    html += `</div>`;
+    html += `<div style="padding:12px 16px;background:white;border-top:1px solid #f3f4f6">`;
+
+    if (lens.assessment) html += `<p style="font-size:0.9em;color:#1f2937;line-height:1.6;margin-bottom:10px">${esc(lens.assessment)}</p>`;
+
+    if (lens.indicators?.length) {
+      html += `<p style="font-size:0.78em;font-weight:600;color:#6b7280;margin-bottom:6px">אינדיקטורים מהמסמך:</p><ul style="margin:0 20px 10px 0;padding:0">`;
+      for (const ind of lens.indicators) html += `<li style="font-size:0.8em;color:#4b5563;line-height:1.6">${esc(ind)}</li>`;
+      html += `</ul>`;
+    }
+
+    if (lens.scenarios?.length) {
+      html += `<p style="font-size:0.78em;font-weight:600;color:#6b7280;margin-bottom:6px">תרחישים:</p>`;
+      for (const sc of lens.scenarios) {
+        const wc = sc.worstCase;
+        html += `<div style="border:1px solid ${wc ? '#fca5a5' : '#e5e7eb'};background:${wc ? '#fef2f2' : '#f9fafb'};border-radius:8px;padding:8px 12px;margin-bottom:8px">`;
+        html += `<p style="margin-bottom:3px">`;
+        if (wc) html += `<span style="font-size:0.72em;font-weight:500;border-radius:6px;padding:1px 7px;background:#fee2e2;color:#b91c1c;margin-left:6px">תרחיש קיצון</span>`;
+        if (sc.title) html += `<span style="font-size:0.88em;font-weight:500;color:#111827">${esc(sc.title)}</span>`;
+        html += `</p>`;
+        if (sc.description) html += `<p style="font-size:0.8em;color:#4b5563;line-height:1.6">${esc(sc.description)}</p>`;
+        if (sc.secondOrderEffects?.length) {
+          html += `<p style="font-size:0.76em;font-weight:600;color:#6b7280;margin:6px 0 4px">השלכות מסדר שני:</p><ul style="margin:0 20px 4px 0;padding:0">`;
+          for (const eff of sc.secondOrderEffects) html += `<li style="font-size:0.78em;color:#4b5563;line-height:1.6">${esc(eff)}</li>`;
+          html += `</ul>`;
+        }
+        if (sc.implication) html += `<p style="font-size:0.8em;color:#4b5563;line-height:1.6;margin-top:5px"><strong style="color:#6b7280">השלכה: </strong>${esc(sc.implication)}</p>`;
+        html += `</div>`;
+      }
+    }
+
+    html += `</div></div>`;
+  }
+
+  return html;
+}
+
 function buildDocument(documentText) {
   if (!documentText) {
     return `<p style="color:#9ca3af;text-align:center;padding:2em 0">המסמך המקורי לא נשמר עבור הערכה זו.</p>`;
@@ -402,7 +461,7 @@ function buildAudit(searchAudit) {
 // ─── Main template ────────────────────────────────────────────────────────────
 
 export function generateHtmlReport(data) {
-  const { report, analysis, documentText, searchAudit, telemetry, title, generatedAt, agentOutputs } = data;
+  const { report, analysis, documentText, searchAudit, telemetry, title, generatedAt, agentOutputs, strategicView } = data;
   const content = report?.content || '';
 
   const sections = [
@@ -411,6 +470,7 @@ export function generateHtmlReport(data) {
     { title: 'עדויות סותרות',   html: buildMdSection(content, 'עדויות סותרות', 'לא נמצאו עדויות סותרות בדו״ח') },
     { title: 'חלופות',          html: buildMdSection(content, 'חלופות מדורגות', '') || buildMdSection(content, 'חלופות', 'לא נמצאו חלופות בדו״ח') },
     { title: 'המלצות',          html: buildMdSection(content, 'המלצות', 'לא נמצאו המלצות בדו״ח') },
+    { title: 'ראייה אסטרטגית',  html: buildStrategicView(strategicView) },
     { title: 'ישויות',          html: buildEntities(analysis?.entities) },
     { title: 'מסמך מקורי',      html: buildDocument(documentText) },
     { title: 'שקיפות',          html: buildTransparency(report, telemetry, content, agentOutputs) },

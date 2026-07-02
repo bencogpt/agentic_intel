@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../../services/client.js';
 import { generateHtmlReport } from '../../utils/exportHtml.js';
 
-const TABS = ['תמצית', 'טענות', 'עדויות סותרות', 'חלופות', 'המלצות', 'ניתוח סוכנים', 'ישויות', 'מסמך מקורי', 'שקיפות', 'ביקורת'];
+const TABS = ['תמצית', 'טענות', 'עדויות סותרות', 'חלופות', 'המלצות', 'ניתוח סוכנים', 'ישויות', 'מסמך מקורי', 'שקיפות', 'ביקורת', 'ראייה אסטרטגית'];
 
 function fmtTokens(n) {
   if (!n) return '0';
@@ -568,6 +568,8 @@ export default function Report() {
               )}
             </div>
           )}
+
+          {tab === 10 && <StrategicViewTab view={data.strategicView} />}
         </div>
       </div>
 
@@ -710,6 +712,108 @@ function AuditTab({ audit }) {
 function SectionTab({ content, empty }) {
   if (!content) return <p className="text-gray-400 text-sm text-center py-8">{empty}</p>;
   return <RenderContent text={content} />;
+}
+
+// ─── Strategic point of view ─────────────────────────────────────────────────
+const LIKELIHOOD_LABELS = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
+const LIKELIHOOD_BADGE = {
+  high:   'bg-red-100 text-red-700',
+  medium: 'bg-yellow-100 text-yellow-700',
+  low:    'bg-green-100 text-green-700',
+};
+const LENS_ACCENT = {
+  high:   'border-red-200 bg-red-50',
+  medium: 'border-yellow-200 bg-yellow-50',
+  low:    'border-green-200 bg-green-50',
+};
+
+function StrategicViewTab({ view }) {
+  if (!view || !view.lenses?.length) {
+    return <p className="text-gray-400 text-sm text-center py-8">לא נבחנה ראייה אסטרטגית עבור הערכה זו</p>;
+  }
+
+  return (
+    <div dir="rtl">
+      {view.bigPicture && (
+        <div className="border border-brand/20 bg-brand/5 rounded-xl px-4 py-3 mb-5">
+          <p className="text-xs font-semibold text-brand mb-1.5">התמונה הגדולה</p>
+          <p className="text-sm text-gray-800 leading-relaxed">{view.bigPicture}</p>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {view.lenses.map((lens, i) => (
+          <div key={lens.type || i} className={`border rounded-xl overflow-hidden ${LENS_ACCENT[lens.likelihood] || 'border-gray-200 bg-gray-50'}`}>
+            {/* Header: title + likelihood */}
+            <div className="px-4 py-3 flex items-center justify-between gap-2">
+              <h3 className="text-sm font-bold text-gray-900">{lens.title}</h3>
+              <span className={`badge text-xs shrink-0 ${LIKELIHOOD_BADGE[lens.likelihood] || 'bg-gray-100 text-gray-600'}`}>
+                סבירות: {LIKELIHOOD_LABELS[lens.likelihood] || lens.likelihood || '—'}
+              </span>
+            </div>
+
+            <div className="px-4 py-3 bg-white border-t border-gray-100 space-y-3">
+              {lens.assessment && (
+                <p className="text-sm text-gray-800 leading-relaxed">{lens.assessment}</p>
+              )}
+
+              {lens.indicators?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 mb-1.5">אינדיקטורים מהמסמך:</p>
+                  <ul className="space-y-1">
+                    {lens.indicators.map((ind, ii) => (
+                      <li key={ii} className="text-xs text-gray-600 flex gap-1.5">
+                        <span className="text-gray-400 shrink-0 mt-0.5">›</span>
+                        <span>{ind}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {lens.scenarios?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 mb-1.5">תרחישים:</p>
+                  <div className="space-y-2">
+                    {lens.scenarios.map((sc, si) => (
+                      <div key={si} className={`border rounded-lg px-3 py-2 ${sc.worstCase ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50'}`}>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          {sc.worstCase && (
+                            <span className="badge bg-red-100 text-red-700 text-xs">תרחיש קיצון</span>
+                          )}
+                          {sc.title && <p className="text-sm font-medium text-gray-900">{sc.title}</p>}
+                        </div>
+                        {sc.description && <p className="text-xs text-gray-700 leading-relaxed">{sc.description}</p>}
+                        {sc.secondOrderEffects?.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs font-semibold text-gray-500 mb-1">השלכות מסדר שני:</p>
+                            <ul className="space-y-1">
+                              {sc.secondOrderEffects.map((eff, ei) => (
+                                <li key={ei} className="text-xs text-gray-600 flex gap-1.5">
+                                  <span className="text-gray-400 shrink-0 mt-0.5">↳</span>
+                                  <span>{eff}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {sc.implication && (
+                          <p className="text-xs text-gray-700 leading-relaxed mt-1.5">
+                            <span className="font-semibold text-gray-500">השלכה: </span>
+                            {sc.implication}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 const RELEVANCE_STYLE = {
